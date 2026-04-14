@@ -11,7 +11,7 @@ export function IconButton({
   variant?: 'default' | 'danger' | 'primary'
   className?: string
 }) {
-  const base = 'inline-flex items-center justify-center w-8 h-8 rounded-md transition-colors'
+  const base = 'inline-flex items-center justify-center w-12 h-12 rounded-md transition-colors'
   const themes = {
     default: 'text-[var(--color-text-soft)] hover:bg-[var(--color-bg-soft)] hover:text-[var(--color-text)]',
     danger: 'text-[var(--color-danger)] hover:bg-[var(--color-danger-light)]',
@@ -25,7 +25,7 @@ export function IconButton({
       aria-label={label}
       title={label}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-5 h-5" />
     </button>
   )
 }

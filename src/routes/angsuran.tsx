@@ -12,8 +12,8 @@ import { ErrorAlert } from '../components/ui/ErrorAlert'
 import { FieldError } from '../components/ui/FieldError'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { DataTable } from '../components/ui/DataTable'
-import { PageActions } from '../components/ui/PageActions'
-import { Receipt, Wallet, AlertTriangle } from 'lucide-react'
+import { IconButton } from '../components/ui/IconButton'
+import { Receipt, Wallet, AlertTriangle, CheckCircle } from 'lucide-react'
 import { format, startOfDay } from 'date-fns'
 import { id } from 'date-fns/locale'
 
@@ -187,16 +187,17 @@ function AngsuranPage() {
                   <td className="text-right text-[var(--color-danger)]">{a.penaltyAmount > 0 ? formatCurrency(a.penaltyAmount) : '-'}</td>
                   <td className="text-right tabular-nums">{a.paidAmount > 0 ? formatCurrency(a.paidAmount) : '-'}</td>
                   <td><StatusBadge variant={a.status as any} /></td>
-                  <td>
-                    <PageActions>
-                      {a.status !== 'paid' ? (
-                        <button onClick={() => openPay(a.id)} className="btn btn-primary btn-sm">
-                          Bayar
-                        </button>
-                      ) : (
-                        <span className="text-[12px] text-[var(--color-text-soft)]">-</span>
-                      )}
-                    </PageActions>
+                  <td className="text-right">
+                    {a.status !== 'paid' ? (
+                      <IconButton
+                        icon={CheckCircle}
+                        label="Bayar"
+                        variant="primary"
+                        onClick={() => openPay(a.id)}
+                      />
+                    ) : (
+                      <span className="inline-flex items-center justify-center w-12 h-12 text-[var(--color-text-soft)] text-sm">-</span>
+                    )}
                   </td>
                 </tr>
               ))}

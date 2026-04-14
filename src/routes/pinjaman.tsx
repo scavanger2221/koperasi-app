@@ -14,10 +14,9 @@ import { ErrorAlert } from '../components/ui/ErrorAlert'
 import { FieldError } from '../components/ui/FieldError'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { DataTable } from '../components/ui/DataTable'
-import { PageActions } from '../components/ui/PageActions'
 import { IconButton } from '../components/ui/IconButton'
 import { MobileRow } from '../components/ui/MobileRow'
-import { Plus, FileText, Eye, Wallet, Users } from 'lucide-react'
+import { Plus, FileText, Eye, Wallet, Users, CheckCircle } from 'lucide-react'
 import { format } from 'date-fns'
 import { id } from 'date-fns/locale'
 
@@ -187,12 +186,12 @@ function PinjamanPage() {
                     onClick={() => openDetail(l.id)}
                   />
                   {l.status === 'approved' && (
-                    <button
+                    <IconButton
+                      icon={CheckCircle}
+                      label="Cairkan"
+                      variant="primary"
                       onClick={() => { setApprovingId(l.id); setConfirmOpen(true) }}
-                      className="btn btn-primary btn-sm"
-                    >
-                      Cairkan
-                    </button>
+                    />
                   )}
                 </>
               }
@@ -228,20 +227,22 @@ function PinjamanPage() {
                   <td className="text-right font-semibold tabular-nums">{formatCurrency(l.installmentAmount)}</td>
                   <td className="text-center text-[var(--color-text-soft)]">{l.tenorMonths} bln</td>
                   <td><StatusBadge variant={l.status as any} /></td>
-                  <td>
-                    <PageActions>
-                      <button onClick={() => openDetail(l.id)} className="btn btn-secondary btn-sm">
-                        Detail
-                      </button>
+                  <td className="text-right">
+                    <span className="inline-flex items-center gap-1">
+                      <IconButton
+                        icon={Eye}
+                        label="Detail"
+                        onClick={() => openDetail(l.id)}
+                      />
                       {l.status === 'approved' && (
-                        <button
+                        <IconButton
+                          icon={CheckCircle}
+                          label="Cairkan"
+                          variant="primary"
                           onClick={() => { setApprovingId(l.id); setConfirmOpen(true) }}
-                          className="btn btn-primary btn-sm"
-                        >
-                          Cairkan
-                        </button>
+                        />
                       )}
-                    </PageActions>
+                    </span>
                   </td>
                 </tr>
               ))}
