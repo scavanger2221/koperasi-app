@@ -167,13 +167,13 @@ function AngsuranPage() {
           <table>
             <thead>
               <tr>
-                <th>Anggota</th>
+                <th className="text-left">Anggota</th>
                 <th className="text-center">Ke</th>
-                <th>Jatuh Tempo</th>
+                <th className="text-left">Jatuh Tempo</th>
                 <th className="text-right">Total</th>
                 <th className="text-right">Denda</th>
                 <th className="text-right">Sudah Bayar</th>
-                <th>Status</th>
+                <th className="text-left">Status</th>
                 <th className="text-right">Aksi</th>
               </tr>
             </thead>

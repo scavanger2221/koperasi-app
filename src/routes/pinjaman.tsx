@@ -209,12 +209,12 @@ function PinjamanPage() {
           <table>
             <thead>
               <tr>
-                <th>Anggota</th>
-                <th>Jenis</th>
+                <th className="text-left">Anggota</th>
+                <th className="text-left">Jenis</th>
                 <th className="text-right">Pokok</th>
                 <th className="text-right">Angsuran</th>
                 <th className="text-center">Tenor</th>
-                <th>Status</th>
+                <th className="text-left">Status</th>
                 <th className="text-right">Aksi</th>
               </tr>
             </thead>
@@ -339,8 +339,8 @@ function PinjamanPage() {
                   <table className="text-[13px]">
                     <thead className="sticky top-0 bg-[var(--color-bg-soft)]">
                       <tr>
-                        <th>Ke</th>
-                        <th>Jatuh Tempo</th>
+                        <th className="text-left">Ke</th>
+                        <th className="text-left">Jatuh Tempo</th>
                         <th className="text-right">Total</th>
                         <th>Status</th>
                       </tr>

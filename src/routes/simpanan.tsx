@@ -156,12 +156,12 @@ function SimpananPage() {
           <table>
             <thead>
               <tr>
-                <th>Tanggal</th>
-                <th>Anggota</th>
-                <th>Jenis</th>
-                <th>Tipe</th>
+                <th className="text-left">Tanggal</th>
+                <th className="text-left">Anggota</th>
+                <th className="text-left">Jenis</th>
+                <th className="text-left">Tipe</th>
                 <th className="text-right">Jumlah</th>
-                <th>Keterangan</th>
+                <th className="text-left">Keterangan</th>
               </tr>
             </thead>
             <tbody>

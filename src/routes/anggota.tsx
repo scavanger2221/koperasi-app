@@ -239,7 +239,9 @@ function AnggotaPage() {
               {table.getHeaderGroups().map((hg) => (
                 <tr key={hg.id}>
                   {hg.headers.map((h) => (
-                    <th key={h.id}>{flexRender(h.column.columnDef.header, h.getContext())}</th>
+                    <th key={h.id} className={h.column.id === 'actions' ? 'text-right' : 'text-left'}>
+                      {flexRender(h.column.columnDef.header, h.getContext())}
+                    </th>
                   ))}
                 </tr>
               ))}
