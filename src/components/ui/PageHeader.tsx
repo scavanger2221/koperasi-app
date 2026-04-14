@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react'
+
 export function PageHeader({
   title,
   subtitle,
@@ -6,17 +8,21 @@ export function PageHeader({
 }: {
   title: string
   subtitle?: string
-  action?: React.ReactNode
+  action?: ReactNode
   className?: string
 }) {
   return (
-    <div className={['mb-5', className].join(' ')}>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className={['mb-8', className].join(' ')}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
         <div>
-          <h1 className="text-xl md:text-2xl font-bold">{title}</h1>
-          {subtitle && <p className="text-[var(--color-text-soft)] mt-1 text-sm">{subtitle}</p>}
+          <h1 className="text-2xl md:text-3xl font-extrabold text-[var(--color-text)] tracking-tighter uppercase leading-none">{title}</h1>
+          {subtitle && (
+            <p className="text-[var(--color-text-soft)] mt-3 text-[13px] font-bold uppercase tracking-widest leading-none bg-white inline-block px-3 py-1.5 rounded-lg border border-[var(--color-border)]">
+              {subtitle}
+            </p>
+          )}
         </div>
-        {action && <div>{action}</div>}
+        {action && <div className="shrink-0">{action}</div>}
       </div>
     </div>
   )

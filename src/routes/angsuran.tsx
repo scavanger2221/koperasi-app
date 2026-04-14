@@ -1,7 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useAuthStore } from '../stores/auth'
 import { useIsMobile } from '../hooks/useIsMobile'
+import { useToast } from '../components/ui/ToastProvider'
 import { listAngsuran, getAngsuran, payAngsuran } from '../lib/angsuranFns'
 import { Modal } from '../components/ui/Modal'
 import { MetricCard } from '../components/ui/MetricCard'
@@ -13,7 +14,10 @@ import { FieldError } from '../components/ui/FieldError'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { DataTable } from '../components/ui/DataTable'
 import { IconButton } from '../components/ui/IconButton'
-import { Receipt, Wallet, AlertTriangle, CheckCircle } from 'lucide-react'
+import { LoadingSpinner } from '../components/ui/LoadingSpinner'
+import { TablePagination } from '../components/ui/TablePagination'
+import { Avatar } from '../components/ui/Avatar'
+import { Receipt, Wallet, AlertTriangle, CircleDollarSign } from 'lucide-react'
 import { format, startOfDay } from 'date-fns'
 import { id } from 'date-fns/locale'
 
@@ -28,11 +32,15 @@ function formatCurrency(n: number) {
   return `Rp ${n.toLocaleString('id-ID')}`
 }
 
+const PAGE_SIZE = 10
+
 function AngsuranPage() {
   const token = useAuthStore((s) => s.token)!
   const isMobile = useIsMobile()
+  const { success, error: showError } = useToast()
   const [items, setItems] = useState<AngsuranItem[]>([])
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
   const [payOpen, setPayOpen] = useState(false)
   const [detail, setDetail] = useState<AngsuranDetail | null>(null)
@@ -45,6 +53,7 @@ function AngsuranPage() {
     try {
       const data = await listAngsuran({ data: { token, memberName: search || undefined } })
       setItems(data)
+      setPage(1)
     } catch (err: any) {
       setError(err?.message || 'Gagal memuat data')
     } finally {
@@ -62,6 +71,13 @@ function AngsuranPage() {
     .reduce((sum, a) => sum + a.paidAmount, 0)
   const belumLunas = items.filter((a) => a.status !== 'paid').length
   const tunggakan = items.filter((a) => a.status === 'unpaid' && new Date(a.dueDate).getTime() < today).length
+
+  const paginated = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE
+    return items.slice(start, start + PAGE_SIZE)
+  }, [items, page])
+
+  const totalPages = Math.ceil(items.length / PAGE_SIZE) || 1
 
   const openPay = async (id: number) => {
     setError('')
@@ -98,12 +114,15 @@ function AngsuranPage() {
       await payAngsuran({
         data: { token, id: detail.id, paidAmount, paidDate },
       })
+      const sisa = Math.max(0, detail.totalAmount + detail.penaltyAmount - detail.paidAmount - paidAmount)
       setPayOpen(false)
       setDetail(null)
       setFieldErrors({})
+      success(`Angsuran berhasil dibayar. Sisa: ${formatCurrency(sisa)}`)
       await fetchData()
     } catch (err: any) {
       setError(err?.message || 'Gagal membayar')
+      showError(err?.message || 'Gagal membayar')
     }
   }
 
@@ -126,17 +145,29 @@ function AngsuranPage() {
       {error && !payOpen && <ErrorAlert message={error} />}
 
       {loading ? (
-        <p className="text-[13px] text-[var(--color-text-soft)]">Memuat...</p>
+        <LoadingSpinner />
       ) : items.length === 0 ? (
-        <EmptyState icon={Receipt} message="Belum ada data angsuran." />
+        <EmptyState
+          icon={Receipt}
+          message={search ? `Tidak ditemukan hasil untuk "${search}"` : "Belum ada data angsuran."}
+          submessage={search ? "Coba kata kunci lain." : "Silakan cek kembali nanti."}
+          action={
+            search ? (
+              <button onClick={() => setSearch('')} className="btn btn-secondary">Hapus Pencarian</button>
+            ) : undefined
+          }
+        />
       ) : isMobile ? (
         <div className="space-y-3">
           {items.map((a) => (
             <div key={a.id} className="card p-4 space-y-3">
               <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[16px] font-bold text-[var(--color-text)]">{a.pinjaman?.member?.name}</p>
-                  <p className="text-[13px] text-[var(--color-text-soft)]">Angsuran ke-{a.installmentNumber}</p>
+                <div className="min-w-0 flex items-center gap-3">
+                  <Avatar name={a.pinjaman?.member?.name || '?'} size="md" />
+                  <div>
+                    <p className="text-[16px] font-bold text-[var(--color-text)] break-words">{a.pinjaman?.member?.name}</p>
+                    <p className="text-[13px] text-[var(--color-text-soft)]">Angsuran ke-{a.installmentNumber}</p>
+                  </div>
                 </div>
                 <div className="shrink-0">
                   <StatusBadge variant={a.status as any} />
@@ -174,13 +205,18 @@ function AngsuranPage() {
                 <th className="text-right">Denda</th>
                 <th className="text-right">Sudah Bayar</th>
                 <th className="text-left">Status</th>
-                <th className="text-right">Aksi</th>
+                <th className="text-right">Pembayaran</th>
               </tr>
             </thead>
             <tbody>
-              {items.map((a) => (
+              {paginated.map((a) => (
                 <tr key={a.id}>
-                  <td className="font-medium">{a.pinjaman?.member?.name}</td>
+                  <td>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={a.pinjaman?.member?.name || '?'} size="sm" />
+                      <span className="font-medium">{a.pinjaman?.member?.name}</span>
+                    </div>
+                  </td>
                   <td className="text-center text-[var(--color-text-soft)]">{a.installmentNumber}</td>
                   <td>{format(new Date(a.dueDate), 'dd/MM/yyyy', { locale: id })}</td>
                   <td className="text-right font-semibold tabular-nums">{formatCurrency(a.totalAmount)}</td>
@@ -190,30 +226,53 @@ function AngsuranPage() {
                   <td className="text-right">
                     {a.status !== 'paid' ? (
                       <IconButton
-                        icon={CheckCircle}
+                        icon={CircleDollarSign}
                         label="Bayar"
+                        showLabel={true}
                         variant="primary"
                         onClick={() => openPay(a.id)}
                       />
                     ) : (
-                      <span className="inline-flex items-center justify-center w-12 h-12 text-[var(--color-text-soft)] text-sm">-</span>
+                      <span className="inline-flex items-center justify-center min-w-[48px] text-[var(--color-text-soft)] text-xs font-bold uppercase tracking-widest">-</span>
                     )}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          <TablePagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalItems={items.length}
+            pageSize={PAGE_SIZE}
+          />
         </DataTable>
       )}
 
-      <Modal open={payOpen} onClose={() => { setPayOpen(false); setDetail(null); setError(''); setFieldErrors({}) }} title="Bayar Angsuran">
+      <Modal
+        open={payOpen}
+        onClose={() => { setPayOpen(false); setDetail(null); setError(''); setFieldErrors({}) }}
+        title="Bayar Angsuran"
+        footer={
+          <div className="flex flex-col-reverse sm:flex-row gap-2">
+            <button type="button" onClick={() => { setPayOpen(false); setDetail(null); setError(''); setFieldErrors({}) }} className="btn btn-secondary flex-1">Batal</button>
+            <button type="submit" form="payForm" className="btn btn-primary flex-1">Simpan Pembayaran</button>
+          </div>
+        }
+      >
         {error && payOpen && <ErrorAlert message={error} className="mb-3" />}
         {detail && (
           <div className="space-y-3">
             <div className="card p-3 bg-[var(--color-bg-soft)]">
-              <p className="text-sm font-medium">{detail.pinjaman?.member?.name}</p>
-              <p className="text-[12px] text-[var(--color-text-soft)]">Angsuran ke-{detail.installmentNumber}</p>
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className="flex items-center gap-3">
+                <Avatar name={detail.pinjaman?.member?.name || '?'} size="md" />
+                <div>
+                  <p className="text-sm font-bold">{detail.pinjaman?.member?.name}</p>
+                  <p className="text-[12px] text-[var(--color-text-soft)]">Angsuran ke-{detail.installmentNumber}</p>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 mt-3">
                 <div><p className="text-[11px] text-[var(--color-text-soft)]">Total Angsuran</p><p className="text-sm font-semibold tabular-nums">{formatCurrency(detail.totalAmount)}</p></div>
                 <div><p className="text-[11px] text-[var(--color-text-soft)]">Denda</p><p className="text-sm font-semibold tabular-nums text-[var(--color-danger)]">{formatCurrency(detail.penaltyAmount)}</p></div>
                 <div><p className="text-[11px] text-[var(--color-text-soft)]">Sudah Dibayar</p><p className="text-sm font-semibold tabular-nums text-[var(--color-success)]">{formatCurrency(detail.paidAmount)}</p></div>
@@ -221,13 +280,15 @@ function AngsuranPage() {
               </div>
             </div>
 
-            <form onSubmit={handlePay} className="space-y-4" noValidate>
+            <form id="payForm" onSubmit={handlePay} className="space-y-4" noValidate>
               <div>
                 <label htmlFor="paidAmount">Jumlah Bayar (Rp) <span className="text-[var(--color-danger)] ml-0.5">*</span></label>
                 <input
                   id="paidAmount"
                   name="paidAmount"
                   type="number"
+                  inputMode="numeric"
+                  step="1"
                   defaultValue={Math.max(0, detail.totalAmount + detail.penaltyAmount - detail.paidAmount)}
                   required
                 />
@@ -237,10 +298,6 @@ function AngsuranPage() {
                 <label htmlFor="paidDate">Tanggal Bayar <span className="text-[var(--color-danger)] ml-0.5">*</span></label>
                 <input id="paidDate" name="paidDate" type="date" defaultValue={todayStr} required />
                 <FieldError message={fieldErrors.paidDate} />
-              </div>
-              <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
-                <button type="button" onClick={() => { setPayOpen(false); setDetail(null); setError(''); setFieldErrors({}) }} className="btn btn-secondary flex-1">Batal</button>
-                <button type="submit" className="btn btn-primary flex-1">Simpan Pembayaran</button>
               </div>
             </form>
           </div>

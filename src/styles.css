@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -6,27 +6,34 @@
 }
 
 :root {
-  /* AGENTS.md STRICT COLORS */
-  --color-primary: #16a34a;       /* Green */
-  --color-primary-dark: #15803d;  /* Darker Green for hover */
-  --color-primary-light: #dcfce7; /* Light Green */
+  /* MODERN KOPERASI PALETTE */
+  --color-primary: #064e3b;       /* Deep Forest Green */
+  --color-primary-dark: #042f24;  /* Darker Forest Green */
+  --color-primary-light: #ecfdf5; /* Very Light Mint for backgrounds */
   
-  --color-danger: #dc2626;        /* Red */
-  --color-danger-dark: #b91c1c;   /* Darker Red */
-  --color-danger-light: #fee2e2;  /* Light Red */
+  --color-accent: #10b981;        /* Vibrant Mint */
+  
+  --color-danger: #be123c;        /* Crimson Red */
+  --color-danger-light: #fff1f2;
 
-  --color-warning: #facc15;       /* Yellow */
-  --color-warning-dark: #ca8a04;  /* Darker Yellow */
-  --color-warning-light: #fef9c3; /* Light Yellow */
+  --color-warning: #b45309;       /* Amber/Brown */
+  --color-warning-light: #fffbeb;
 
-  --color-success: #16a34a;       /* Green */
-  --color-success-light: #dcfce7;
+  --color-success: #065f46;       /* Emerald Green */
+  --color-success-light: #f0fdf4;
 
-  --color-bg: #ffffff;            /* White */
-  --color-bg-soft: #f3f4f6;       /* Gray 100 for app background */
-  --color-border: #e5e7eb;        /* Gray 200 */
-  --color-text: #111827;          /* Gray 900 for high contrast text */
-  --color-text-soft: #4b5563;     /* Gray 600 */
+  --color-bg: #ffffff;            /* Pure White */
+  --color-bg-soft: #f8fafc;       /* Slate 50 for app background */
+  --color-border: #e2e8f0;        /* Slate 200 */
+  --color-text: #0f172a;          /* Slate 900 for primary text */
+  --color-text-soft: #64748b;     /* Slate 500 for secondary text */
+  
+  --radius-sm: 0.375rem;          /* 6px */
+  --radius-md: 0.5rem;            /* 8px */
+  --radius-lg: 0.75rem;           /* 12px */
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -45,44 +52,37 @@ body {
   background-color: var(--color-bg-soft);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 16px; /* Base 16px as per AGENTS.md */
+  font-size: 16px;
   line-height: 1.5;
 }
 
 /* Tabular numbers for financial data */
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
 }
 
-/* Base font sizes for inputs */
 button,
 [role="button"],
 a,
 input,
 select,
 textarea {
-  font-size: 16px; /* Ensure 16px base font */
-}
-
-/* Large touch targets for accessibility (minimum 48px as per AGENTS.md) */
-button,
-[role="button"] {
-  min-height: 48px;
-  min-width: 48px;
+  font-size: 16px;
 }
 
 /* Form elements */
 input,
 select,
 textarea {
-  min-height: 48px; /* 48px touch target */
-  padding: 0.75rem 1rem;
+  min-height: 44px;
+  padding: 0.625rem 0.875rem;
   border: 1px solid var(--color-border);
-  border-radius: 0.5rem;
+  border-radius: var(--radius-sm);
   background: var(--color-bg);
   color: var(--color-text);
   width: 100%;
-  transition: border-color 120ms ease, box-shadow 120ms ease;
+  transition: all 150ms ease;
 }
 
 input:focus,
@@ -90,77 +90,71 @@ select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
+  box-shadow: 0 0 0 1px var(--color-primary);
 }
 
 label {
   display: block;
-  font-weight: 700; /* Labels should be bold and clear as per AGENTS.md */
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  margin-bottom: 0.375rem;
   color: var(--color-text);
-  font-size: 16px;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 /* Cards */
 .card {
   background: var(--color-bg);
   border: 1px solid var(--color-border);
-  border-radius: 0.75rem;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
 }
 
 /* Tables */
 table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 16px;
-}
-
-th,
-td {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--color-border);
-  vertical-align: middle;
 }
 
 th {
-  font-weight: 700;
+  padding: 0.75rem 1rem;
+  font-weight: 800;
   color: var(--color-text-soft);
-  font-size: 14px;
+  font-size: 12px;
   background: var(--color-bg-soft);
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--color-border);
+  text-align: left;
 }
 
-tbody tr {
-  transition: background-color 80ms ease;
+td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--color-border);
+  vertical-align: middle;
+  font-size: 15px;
 }
 
 tbody tr:hover {
-  background-color: var(--color-primary-light);
+  background-color: var(--color-bg-soft);
 }
 
-tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* Utility classes */
+/* Buttons */
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
-  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--radius-sm);
   font-weight: 700;
-  font-size: 16px;
-  border: none;
+  font-size: 14px;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 120ms ease, transform 60ms ease;
-}
-
-.btn:active {
-  transform: translateY(1px);
+  transition: all 150ms ease;
+  min-height: 44px;
 }
 
 .btn-primary {
@@ -172,28 +166,20 @@ tbody tr:last-child td {
   background-color: var(--color-primary-dark);
 }
 
-.btn-danger {
-  background-color: var(--color-danger);
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: var(--color-danger-dark);
-}
-
-.btn-warning {
-  background-color: var(--color-warning);
-  color: #1a1a1a;
-}
-
 .btn-secondary {
-  background-color: var(--color-bg);
+  background-color: white;
   color: var(--color-text);
-  border: 1px solid var(--color-border);
+  border-color: var(--color-border);
 }
 
 .btn-secondary:hover {
   background-color: var(--color-bg-soft);
+  border-color: var(--color-text-soft);
+}
+
+.btn-danger {
+  background-color: var(--color-danger);
+  color: white;
 }
 
 .btn-ghost {
@@ -206,22 +192,7 @@ tbody tr:last-child td {
   color: var(--color-text);
 }
 
-.btn-sm {
-  /* Keep minimum 48px height even for small buttons as per AGENTS.md rule 1 */
-  min-height: 48px;
-  padding: 0.5rem 1rem;
-  font-size: 14px;
-  border-radius: 0.375rem;
-}
-
-/* Date inputs: prevent native overflow on mobile */
-input[type="date"] {
-  -webkit-appearance: none;
-  appearance: none;
-  min-width: 0;
-}
-
-/* Screen reader only */
+/* Utility classes */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -232,15 +203,4 @@ input[type="date"] {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
-}
-
-/* Mobile bottom nav safe area */
-.pb-safe {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-/* Recharts overrides */
-.recharts-text {
-  font-size: 12px !important;
-  fill: var(--color-text-soft) !important;
 }

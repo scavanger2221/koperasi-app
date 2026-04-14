@@ -86,14 +86,16 @@ This is a TanStack Start app. Deploy via the framework's adapters (Cloudflare, N
 
 ---
 
-## Design Philosophy
+## Design Philosophy (MODERN KOPERASI)
 
-- **Minimum 48px touch targets** everywhere
-- **Base 16px font** with bold, clear labels
-- **One action per screen** on mobile
-- **Plain Indonesian** — no banking jargon
-- **Desktop:** sidebar + data tables
-- **Mobile:** bottom nav + full-width card lists (no tables)
+- **Trustworthy Aesthetic**: Deep Forest Green (`#064e3b`) for brand identity and Mint accents.
+- **Strict Anti-Slop**: No messy gradients or blurry shadows. All separation uses crisp hairline borders and precise geometry.
+- **Non-Tech Savvy Friendly**: Every table action has a **clear text label** (e.g., "LIHAT", "UBAH", "BAYAR"). No icon-only guesswork.
+- **Subtle Curves**: Precise `6px`–`8px` border-radius for an approachable, professional feel.
+- **High Readability**: Slate Text (`#0f172a`) for comfort, **bold tabular-nums** for financial data accuracy.
+- **Responsive Shell**: 
+  - **Desktop:** Sidebar + Tables with labeled columns.
+  - **Mobile:** Bottom Nav + Vertical Card Lists (EntityCards).
 
 ---
 

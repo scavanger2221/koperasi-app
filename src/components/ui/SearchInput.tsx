@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 export function SearchInput({
   value,
   onChange,
-  placeholder = 'Cari...',
+  placeholder = 'Cari data...',
   className = '',
 }: {
   value: string
@@ -29,14 +29,14 @@ export function SearchInput({
   }, [localValue, onChange, value])
 
   return (
-    <div className={['relative', className].join(' ')}>
-      <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--color-text-soft)]/70 pointer-events-none" />
+    <div className={['relative w-full sm:max-w-xs', className].join(' ')}>
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-primary)] stroke-[2.5px] pointer-events-none" />
       <input
         type="text"
         value={localValue}
         onChange={(e) => setLocalValue(e.target.value)}
         placeholder={placeholder}
-        className="!pl-11"
+        className="!pl-10 text-sm font-semibold tracking-tight h-11 border-[var(--color-border)] shadow-sm focus:shadow-md"
       />
     </div>
   )

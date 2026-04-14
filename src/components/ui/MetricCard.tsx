@@ -15,51 +15,55 @@ export function MetricCard({
 }) {
   const toneClasses = {
     default: {
-      bg: 'bg-white',
+      card: 'bg-white',
+      label: 'text-[var(--color-text-soft)]',
+      value: 'text-[var(--color-text)]',
       iconBg: 'bg-[var(--color-bg-soft)]',
       iconText: 'text-[var(--color-text-soft)]',
-      value: 'text-[var(--color-text)]',
     },
     success: {
-      bg: 'bg-[var(--color-success-light)]',
-      iconBg: 'bg-white/70',
-      iconText: 'text-[var(--color-success)]',
+      card: 'bg-white border-[var(--color-success)]/20',
+      label: 'text-[var(--color-success)]',
       value: 'text-[var(--color-success)]',
+      iconBg: 'bg-[var(--color-success-light)]',
+      iconText: 'text-[var(--color-success)]',
     },
     danger: {
-      bg: 'bg-[var(--color-danger-light)]',
-      iconBg: 'bg-white/70',
-      iconText: 'text-[var(--color-danger)]',
+      card: 'bg-white border-[var(--color-danger)]/20',
+      label: 'text-[var(--color-danger)]',
       value: 'text-[var(--color-danger)]',
+      iconBg: 'bg-[var(--color-danger-light)]',
+      iconText: 'text-[var(--color-danger)]',
     },
     warning: {
-      bg: 'bg-[var(--color-warning-light)]',
-      iconBg: 'bg-white/70',
-      iconText: 'text-[var(--color-warning-dark)]',
-      value: 'text-[var(--color-warning-dark)]',
+      card: 'bg-white border-[var(--color-warning)]/20',
+      label: 'text-[var(--color-warning)]',
+      value: 'text-[var(--color-warning)]',
+      iconBg: 'bg-[var(--color-warning-light)]',
+      iconText: 'text-[var(--color-warning)]',
     },
   }
 
   const t = toneClasses[tone]
 
   return (
-    <div className={['card p-4 overflow-hidden min-h-[120px] flex flex-col justify-between', t.bg].join(' ')}>
+    <div className={['card p-5 flex flex-col justify-between min-h-[128px]', t.card].join(' ')}>
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[12px] text-[var(--color-text-soft)] font-bold uppercase tracking-wide truncate leading-tight">
+        <p className={['text-[11px] font-extrabold uppercase tracking-wider leading-none', t.label].join(' ')}>
           {label}
         </p>
         {Icon && (
-          <div className={['shrink-0 p-1.5 rounded-md', t.iconBg, t.iconText].join(' ')}>
+          <div className={['shrink-0 p-2 rounded-lg', t.iconBg, t.iconText].join(' ')}>
             <Icon className="w-5 h-5" />
           </div>
         )}
       </div>
-      <div className="mt-2">
-        <p className={['text-xl sm:text-2xl md:text-[28px] font-bold tabular-nums leading-none break-words', t.value].join(' ')}>
+      <div className="mt-4">
+        <p className={['text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight leading-none', t.value].join(' ')}>
           {value}
         </p>
         {subtext && (
-          <p className="text-[12px] text-[var(--color-text-soft)] mt-1.5 leading-tight">
+          <p className="text-[11px] font-semibold text-[var(--color-text-soft)] mt-2 flex items-center gap-1.5 uppercase tracking-wide">
             {subtext}
           </p>
         )}

@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '../db/client.server'
 import { simpanan, pinjaman, angsuran } from '../db/schema'
-import { eq, and, sql } from 'drizzle-orm'
+import { eq, and, gte, lte, lt } from 'drizzle-orm'
 import { verifyPayload } from './session.server'
 
 function verifyToken(data: { token: string }) {
@@ -11,13 +11,13 @@ function verifyToken(data: { token: string }) {
 }
 
 export const reportSimpanan = createServerFn({ method: 'POST' })
-  .inputValidator((data: { token: string; from: string; to: string }) => data)
+  .inputValidator((data: { token: string; from: number; to: number }) => data)
   .handler(async ({ data }) => {
     verifyToken(data)
-    const from = Math.floor(new Date(data.from).getTime() / 1000)
-    const to = Math.floor(new Date(data.to).getTime() / 1000)
+    const fromDate = new Date(data.from)
+    const toDate = new Date(data.to)
     const rows = await db.query.simpanan.findMany({
-      where: sql`${simpanan.date} >= ${from} AND ${simpanan.date} <= ${to}`,
+      where: and(gte(simpanan.date, fromDate), lte(simpanan.date, toDate)),
       with: { member: true, jenis: true },
       orderBy: simpanan.date,
     })
@@ -27,14 +27,15 @@ export const reportSimpanan = createServerFn({ method: 'POST' })
   })
 
 export const reportPinjaman = createServerFn({ method: 'POST' })
-  .inputValidator((data: { token: string; from: string; to: string; status?: string }) => data)
+  .inputValidator((data: { token: string; from: number; to: number; status?: string }) => data)
   .handler(async ({ data }) => {
     verifyToken(data)
-    const from = Math.floor(new Date(data.from).getTime() / 1000)
-    const to = Math.floor(new Date(data.to).getTime() / 1000)
+    const fromDate = new Date(data.from)
+    const toDate = new Date(data.to)
     const rows = await db.query.pinjaman.findMany({
       where: and(
-        sql`${pinjaman.applicationDate} >= ${from} AND ${pinjaman.applicationDate} <= ${to}`,
+        gte(pinjaman.applicationDate, fromDate),
+        lte(pinjaman.applicationDate, toDate),
         data.status ? eq(pinjaman.status, data.status as any) : undefined
       ),
       with: { member: true, jenis: true },
@@ -46,13 +47,13 @@ export const reportPinjaman = createServerFn({ method: 'POST' })
   })
 
 export const reportAngsuran = createServerFn({ method: 'POST' })
-  .inputValidator((data: { token: string; from: string; to: string }) => data)
+  .inputValidator((data: { token: string; from: number; to: number }) => data)
   .handler(async ({ data }) => {
     verifyToken(data)
-    const from = Math.floor(new Date(data.from).getTime() / 1000)
-    const to = Math.floor(new Date(data.to).getTime() / 1000)
+    const fromDate = new Date(data.from)
+    const toDate = new Date(data.to)
     const rows = await db.query.angsuran.findMany({
-      where: sql`${angsuran.paidDate} >= ${from} AND ${angsuran.paidDate} <= ${to}`,
+      where: and(gte(angsuran.paidDate, fromDate), lte(angsuran.paidDate, toDate)),
       with: { pinjaman: { with: { member: true } } },
       orderBy: angsuran.paidDate,
     })
@@ -65,9 +66,9 @@ export const reportTunggakan = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string }) => data)
   .handler(async ({ data }) => {
     verifyToken(data)
-    const today = Math.floor(new Date().getTime() / 1000)
+    const today = new Date()
     const rows = await db.query.angsuran.findMany({
-      where: and(eq(angsuran.status, 'unpaid'), sql`${angsuran.dueDate} < ${today}`),
+      where: and(eq(angsuran.status, 'unpaid'), lt(angsuran.dueDate, today)),
       with: { pinjaman: { with: { member: true } } },
       orderBy: angsuran.dueDate,
     })

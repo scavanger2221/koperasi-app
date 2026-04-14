@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '../db/client.server'
-import { jenisPinjaman, pinjaman, angsuran } from '../db/schema'
-import { eq, and, desc } from 'drizzle-orm'
+import { members, jenisPinjaman, pinjaman, angsuran } from '../db/schema'
+import { eq, and, desc, like } from 'drizzle-orm'
 import { verifyPayload } from './session.server'
 import { addMonths } from 'date-fns'
 
@@ -19,18 +19,54 @@ export const listJenisPinjaman = createServerFn({ method: 'POST' })
   })
 
 export const listPinjaman = createServerFn({ method: 'POST' })
-  .inputValidator((data: { token: string; memberId?: number; status?: string }) => data)
+  .inputValidator((data: { token: string; memberId?: number; status?: string; search?: string }) => data)
   .handler(async ({ data }) => {
     verifyToken(data)
-    return db.query.pinjaman.findMany({
-      where: and(
+    const rows = await db
+      .select({
+        id: pinjaman.id,
+        memberId: pinjaman.memberId,
+        jenisPinjamanId: pinjaman.jenisPinjamanId,
+        principal: pinjaman.principal,
+        interestRate: pinjaman.interestRate,
+        tenorMonths: pinjaman.tenorMonths,
+        totalInterest: pinjaman.totalInterest,
+        totalPayment: pinjaman.totalPayment,
+        installmentAmount: pinjaman.installmentAmount,
+        applicationDate: pinjaman.applicationDate,
+        disbursementDate: pinjaman.disbursementDate,
+        status: pinjaman.status,
+        notes: pinjaman.notes,
+        createdAt: pinjaman.createdAt,
+        member: {
+          id: members.id,
+          code: members.code,
+          name: members.name,
+          nik: members.nik,
+          phone: members.phone,
+          address: members.address,
+          status: members.status,
+          createdAt: members.createdAt,
+          updatedAt: members.updatedAt,
+        },
+        jenis: {
+          id: jenisPinjaman.id,
+          name: jenisPinjaman.name,
+          interestRate: jenisPinjaman.interestRate,
+          description: jenisPinjaman.description,
+        },
+      })
+      .from(pinjaman)
+      .innerJoin(members, eq(pinjaman.memberId, members.id))
+      .innerJoin(jenisPinjaman, eq(pinjaman.jenisPinjamanId, jenisPinjaman.id))
+      .where(and(
         data.memberId ? eq(pinjaman.memberId, data.memberId) : undefined,
-        data.status ? eq(pinjaman.status, data.status as any) : undefined
-      ),
-      with: { member: true, jenis: true },
-      orderBy: [desc(pinjaman.createdAt)],
-      limit: 200,
-    })
+        data.status ? eq(pinjaman.status, data.status as any) : undefined,
+        data.search ? like(members.name, `%${data.search}%`) : undefined
+      ))
+      .orderBy(desc(pinjaman.createdAt))
+      .limit(200)
+    return rows as any
   })
 
 export const getPinjaman = createServerFn({ method: 'POST' })

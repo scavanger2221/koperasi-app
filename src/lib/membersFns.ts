@@ -79,10 +79,15 @@ export const updateMember = createServerFn({ method: 'POST' })
     return member
   })
 
-export const deleteMember = createServerFn({ method: 'POST' })
+export const deactivateMember = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string; id: number }) => data)
   .handler(async ({ data }) => {
     verifyToken(data)
-    await db.delete(members).where(eq(members.id, data.id))
-    return { success: true }
+    const [member] = await db
+      .update(members)
+      .set({ status: 'inactive', updatedAt: new Date() })
+      .where(eq(members.id, data.id))
+      .returning()
+    if (!member) throw new Error('Anggota tidak ditemukan')
+    return member
   })

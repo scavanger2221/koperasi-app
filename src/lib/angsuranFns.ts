@@ -1,6 +1,6 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '../db/client.server'
-import { pinjaman, angsuran, settings } from '../db/schema'
+import { members, pinjaman, angsuran, settings } from '../db/schema'
 import { eq, and, desc, sql } from 'drizzle-orm'
 import { verifyPayload } from './session.server'
 import { differenceInDays } from 'date-fns'
@@ -15,19 +15,103 @@ export const listAngsuran = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string; pinjamanId?: number; status?: string; memberName?: string }) => data)
   .handler(async ({ data }) => {
     verifyToken(data)
-    const rows = await db.query.angsuran.findMany({
-      where: and(
+    const rows = await db
+      .select({
+        // angsuran
+        a_id: angsuran.id,
+        a_pinjamanId: angsuran.pinjamanId,
+        a_installmentNumber: angsuran.installmentNumber,
+        a_dueDate: angsuran.dueDate,
+        a_principalAmount: angsuran.principalAmount,
+        a_interestAmount: angsuran.interestAmount,
+        a_totalAmount: angsuran.totalAmount,
+        a_paidAmount: angsuran.paidAmount,
+        a_paidDate: angsuran.paidDate,
+        a_lateDays: angsuran.lateDays,
+        a_penaltyAmount: angsuran.penaltyAmount,
+        a_status: angsuran.status,
+        a_createdAt: angsuran.createdAt,
+        // pinjaman
+        p_id: pinjaman.id,
+        p_memberId: pinjaman.memberId,
+        p_jenisPinjamanId: pinjaman.jenisPinjamanId,
+        p_principal: pinjaman.principal,
+        p_interestRate: pinjaman.interestRate,
+        p_tenorMonths: pinjaman.tenorMonths,
+        p_totalInterest: pinjaman.totalInterest,
+        p_totalPayment: pinjaman.totalPayment,
+        p_installmentAmount: pinjaman.installmentAmount,
+        p_applicationDate: pinjaman.applicationDate,
+        p_disbursementDate: pinjaman.disbursementDate,
+        p_status: pinjaman.status,
+        p_notes: pinjaman.notes,
+        p_createdAt: pinjaman.createdAt,
+        // member
+        m_id: members.id,
+        m_code: members.code,
+        m_name: members.name,
+        m_nik: members.nik,
+        m_phone: members.phone,
+        m_address: members.address,
+        m_status: members.status,
+        m_createdAt: members.createdAt,
+        m_updatedAt: members.updatedAt,
+      })
+      .from(angsuran)
+      .innerJoin(pinjaman, eq(angsuran.pinjamanId, pinjaman.id))
+      .innerJoin(members, eq(pinjaman.memberId, members.id))
+      .where(and(
         data.pinjamanId ? eq(angsuran.pinjamanId, data.pinjamanId) : undefined,
-        data.status ? eq(angsuran.status, data.status as any) : undefined
-      ),
-      with: { pinjaman: { with: { member: true } } },
-      orderBy: [desc(angsuran.dueDate)],
-      limit: 300,
-    })
-    if (data.memberName) {
-      return rows.filter((r) => r.pinjaman?.member?.name.toLowerCase().includes(data.memberName!.toLowerCase()))
-    }
-    return rows
+        data.status ? eq(angsuran.status, data.status as any) : undefined,
+        data.memberName ? sql`lower(${members.name}) like ${`%${data.memberName.toLowerCase()}%`}` : undefined
+      ))
+      .orderBy(desc(angsuran.dueDate))
+      .limit(300)
+
+    const mapped = rows.map((r) => ({
+      id: r.a_id,
+      pinjamanId: r.a_pinjamanId,
+      installmentNumber: r.a_installmentNumber,
+      dueDate: r.a_dueDate,
+      principalAmount: r.a_principalAmount,
+      interestAmount: r.a_interestAmount,
+      totalAmount: r.a_totalAmount,
+      paidAmount: r.a_paidAmount,
+      paidDate: r.a_paidDate,
+      lateDays: r.a_lateDays,
+      penaltyAmount: r.a_penaltyAmount,
+      status: r.a_status,
+      createdAt: r.a_createdAt,
+      pinjaman: {
+        id: r.p_id,
+        memberId: r.p_memberId,
+        jenisPinjamanId: r.p_jenisPinjamanId,
+        principal: r.p_principal,
+        interestRate: r.p_interestRate,
+        tenorMonths: r.p_tenorMonths,
+        totalInterest: r.p_totalInterest,
+        totalPayment: r.p_totalPayment,
+        installmentAmount: r.p_installmentAmount,
+        applicationDate: r.p_applicationDate,
+        disbursementDate: r.p_disbursementDate,
+        status: r.p_status,
+        notes: r.p_notes,
+        createdAt: r.p_createdAt,
+        member: {
+          id: r.m_id,
+          code: r.m_code,
+          name: r.m_name,
+          nik: r.m_nik,
+          phone: r.m_phone,
+          address: r.m_address,
+          status: r.m_status,
+          createdAt: r.m_createdAt,
+          updatedAt: r.m_updatedAt,
+        },
+      },
+    }))
+
+    return mapped as any
   })
 
 export const getAngsuran = createServerFn({ method: 'POST' })

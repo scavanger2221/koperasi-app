@@ -10,7 +10,7 @@ A **Progressive Web App (PWA)** backoffice for a Savings & Loans Cooperative (Ko
 
 - **Scope**: Member management, savings (simpanan), loans (pinjaman), installments (angsuran), and basic reports.
 - **Primary users**: Older, non-tech-savvy backoffice staff and field officers.
-- **Design philosophy**: **Function over form. Convenience over aesthetics.**
+- **Design philosophy**: **Modern Koperasi Aesthetic**. Trustworthy, clean, and high-performance. Prioritize clarity and community trust over generic enterprise density. Strictly **"Anti-Slop"** (no messy gradients, no blurry shadows).
 
 ---
 
@@ -35,25 +35,27 @@ A **Progressive Web App (PWA)** backoffice for a Savings & Loans Cooperative (Ko
 
 ## Design System
 
-### Color Code (MUST follow)
-- **Green `#16a34a`**: Primary actions, savings/deposits, success states
-- **Red `#dc2626`**: Loans/debt, danger actions, deletes, critical alerts
-- **White `#ffffff`**: Backgrounds, cards, input fields
-- **Yellow `#facc15`**: Warnings, late fees, attention flags, highlighted totals
+### Color Code (MODERN KOPERASI)
+- **Primary Forest Green `#064e3b`**: Branding, primary buttons, active navigation, trust.
+- **Vibrant Mint `#10b981`**: Accents, tiny highlights, success indicators.
+- **Crimson Red `#be123c`**: Danger actions, deletes, critical debt/arrears alerts.
+- **Slate Text `#0f172a`**: High contrast for readability, easier on eyes than pure black.
+- **Slate Border `#e2e8f0`**: Hairline borders for all structural separation (no blurry shadows).
+- **Background Slate-50 `#f8fafc`**: Clean, off-white background for reduced glare.
 
-### UX Rules
-1. **Large touch targets**: minimum `48px` for buttons and inputs.
-2. **Readable text**: base font `16px`, labels should be bold and clear.
-3. **One action per screen** on mobile. Avoid dense multi-column forms on small screens.
-4. **Forgiving UI**: always provide clear back/cancel buttons and confirmation dialogs for destructive actions.
-5. **Use Indonesian plain language** in UI labels. Avoid banking jargon.
+### UX Rules (FOR NON-TECH USERS)
+1. **Large touch targets**: minimum `44px`–`48px` for all clickable areas.
+2. **Softened Flat Geometry**: Use `6px` (sm) and `8px` (md) border-radius. Avoid 0px (too harsh) and large curves (too "bubbly").
+3. **Labels Everywhere**: Never show icon-only buttons in tables. Every action button (Aksi) must have a **clear text label** (e.g., "UBAH", "BAYAR").
+4. **Bold Financial Data**: All currency and numbers must be **bold**, large, and use **tabular numbers** (`font-variant-numeric: tabular-nums`).
+5. **No Slop**: Absolutely no gradients or fuzzy drop shadows. Use crisp hairline borders and tight, hard shadows for floating elements.
+6. **Indonesian Plain Language**: Use "Ubah" instead of "Edit", "Simpan" instead of "Save", "Keluar" instead of "Logout".
 
 ### Responsive Layout
-- **Desktop (>1024px)**: Sidebar navigation + data tables (TanStack Table)
-- **Tablet (768px–1024px)**: Collapsible sidebar + simplified tables
-- **Mobile (<768px)**: Bottom navigation + card lists (NOT tables) + full-screen modals/drawers
+- **Desktop (>1024px)**: Fixed Sidebar + Header + Data Tables with labeled actions.
+- **Mobile (<768px)**: Bottom Navigation + Vertical Card Lists + Bottom Sheets (Modals).
 
-Use `useIsMobile()` hook to branch layouts. Do NOT render TanStack Table on mobile.
+Use `useIsMobile()` hook to branch layouts. Do NOT render complex tables on mobile; use `EntityCard`.
 
 ---
 
@@ -116,19 +118,23 @@ The `angsuran.tsx` mobile list is the current reference implementation.
 ## Component Conventions
 
 ### `MetricCard`
-Props: `label`, `value`, `subtext?`, `tone?`, `icon?`
-- Always use **icons** and **tone backgrounds** for semantic meaning (green = savings, red = debt, yellow = attention).
-- Value text is `text-xl sm:text-2xl md:text-[28px]` and bold.
-- **Mobile layout:** Metric cards must be **full-width** (`grid-cols-1` on mobile) so large currency values like `Rp 5.916.666` never overflow.
+- **Modern Starkness**: Pure white bg, crisp borders (`border-border`), bold tabular-nums.
+- **Tone Highlights**: Use subtle background tints from the Modern Koperasi palette (Emerald-50, Rose-50, Amber-50) for icons.
+- **Visual Weight**: Values should be `text-2xl sm:text-3xl` and `font-extrabold`.
 
-### `MobileRow`
-A generic collapsible row. Use it only when horizontal space is sufficient (no badge + button conflict). For complex rows, prefer a custom vertical card.
+### `IconButton`
+- **Mandatory Labels**: In desktop tables, always set `showLabel={true}`.
+- **Precise Borders**: Always has a shadow-sm and a hairline border for better tactile feedback.
+- **Friendly Colors**: Green-dark for primary, Slate for ghost actions.
 
 ### `Modal`
-Uses a bottom-sheet on mobile (`h-[92vh]`) and a centered dialog on desktop. Keep form inputs stacked vertically inside modals.
+- **Depth**: Uses `bg-slate-900/40` backdrop with subtle blur. 
+- **Animations**: Uses TanStack Router-style animations (`animate-in fade-in slide-in-from-bottom`).
+- **Responsive Shape**: Rounded top corners (`rounded-t-2xl`) on mobile (bottom-sheet style); centered with `rounded-xl` on desktop.
 
 ### `StatusBadge`
-Small, rounded pill. Variants map to the design-system colors.
+- **Modern Pills**: Large, rounded-full pills with bold, uppercase text.
+- **Semantic Mapping**: Mapped precisely to color palette (Forest Green for paid, Crimson for unpaid).
 
 ---
 
@@ -234,6 +240,26 @@ npm run routes:watch
 # TanStack CLI
 npx tanstack add <add-on>
 npx tanstack search-docs "loaders" --library router --framework react --json
+
+## Debugging TanStack Issues
+
+If you're stuck debugging TanStack-related things (router, start, table, query, etc.), use the TanStack CLI to search official docs:
+
+```bash
+# Search docs for specific topic (returns JSON for agent parsing)
+npx tanstack search-docs "server functions" --library start --json
+npx tanstack search-docs "file-based routing" --library router --framework react --json
+npx tanstack search-docs "createServerFn" --library start --json
+
+# Get specific doc page
+npx tanstack doc query framework/react/start/overview --json
+npx tanstack doc query router/concepts/routing --json
+
+# List available libraries
+npx tanstack libraries --json
+```
+
+Use `--json` flag for machine-readable output when working with agents/automation.
 ```
 
 ---

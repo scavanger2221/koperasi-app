@@ -1,7 +1,7 @@
 import { createServerFn } from '@tanstack/react-start'
 import { db } from '../db/client.server'
 import { members, jenisSimpanan, simpanan } from '../db/schema'
-import { eq, and, desc, sql } from 'drizzle-orm'
+import { eq, and, desc, sql, like } from 'drizzle-orm'
 import { verifyPayload } from './session.server'
 
 function verifyToken(data: { token: string }) {
@@ -21,15 +21,43 @@ export const listSimpanan = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string; memberId?: number; search?: string }) => data)
   .handler(async ({ data }) => {
     verifyToken(data)
-    return db.query.simpanan.findMany({
-      where: and(
+    const rows = await db
+      .select({
+        id: simpanan.id,
+        memberId: simpanan.memberId,
+        jenisSimpananId: simpanan.jenisSimpananId,
+        type: simpanan.type,
+        amount: simpanan.amount,
+        date: simpanan.date,
+        notes: simpanan.notes,
+        createdAt: simpanan.createdAt,
+        member: {
+          id: members.id,
+          code: members.code,
+          name: members.name,
+          nik: members.nik,
+          phone: members.phone,
+          address: members.address,
+          status: members.status,
+          createdAt: members.createdAt,
+          updatedAt: members.updatedAt,
+        },
+        jenis: {
+          id: jenisSimpanan.id,
+          name: jenisSimpanan.name,
+          description: jenisSimpanan.description,
+        },
+      })
+      .from(simpanan)
+      .innerJoin(members, eq(simpanan.memberId, members.id))
+      .innerJoin(jenisSimpanan, eq(simpanan.jenisSimpananId, jenisSimpanan.id))
+      .where(and(
         data.memberId ? eq(simpanan.memberId, data.memberId) : undefined,
-        data.search ? eq(members.name, data.search) : undefined
-      ),
-      with: { member: true, jenis: true },
-      orderBy: [desc(simpanan.date)],
-      limit: 200,
-    })
+        data.search ? like(members.name, `%${data.search}%`) : undefined
+      ))
+      .orderBy(desc(simpanan.date))
+      .limit(200)
+    return rows as any
   })
 
 export const getMemberSimpananBalance = createServerFn({ method: 'POST' })
@@ -78,7 +106,7 @@ export const createSimpanan = createServerFn({ method: 'POST' })
       amount,
       date: new Date(data.date),
       notes: data.notes || null,
-      createdBy: undefined, // will be added later if needed
+      createdBy: undefined,
     }).returning()
     return trx
   })

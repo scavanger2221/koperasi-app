@@ -2,7 +2,8 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState, useMemo, useEffect } from 'react'
 import { useAuthStore } from '../stores/auth'
 import { useIsMobile } from '../hooks/useIsMobile'
-import { listMembers, createMember, updateMember, deleteMember } from '../lib/membersFns'
+import { useToast } from '../components/ui/ToastProvider'
+import { listMembers, createMember, updateMember, deactivateMember } from '../lib/membersFns'
 import { Modal } from '../components/ui/Modal'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { MetricCard } from '../components/ui/MetricCard'
@@ -13,17 +14,19 @@ import { ErrorAlert } from '../components/ui/ErrorAlert'
 import { FieldError } from '../components/ui/FieldError'
 import { StatusBadge } from '../components/ui/StatusBadge'
 import { DataTable } from '../components/ui/DataTable'
-import { IconButton } from '../components/ui/IconButton'
+import { LoadingSpinner } from '../components/ui/LoadingSpinner'
+import { TablePagination } from '../components/ui/TablePagination'
+import { Avatar } from '../components/ui/Avatar'
+import { EntityCard } from '../components/ui/EntityCard'
 import { PageActions } from '../components/ui/PageActions'
-import { MobileRow } from '../components/ui/MobileRow'
+import { IconButton } from '../components/ui/IconButton'
 import {
   useReactTable,
   getCoreRowModel,
-  getFilteredRowModel,
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table'
-import { Plus, Edit2, Trash2, User, Users, Activity } from 'lucide-react'
+import { Plus, Pencil, UserX, User, Users, Activity } from 'lucide-react'
 
 export const Route = createFileRoute('/anggota')({
   component: AnggotaPage,
@@ -32,17 +35,20 @@ export const Route = createFileRoute('/anggota')({
 type Member = Awaited<ReturnType<typeof listMembers>>[number]
 
 const columnHelper = createColumnHelper<Member>()
+const PAGE_SIZE = 10
 
 function AnggotaPage() {
   const token = useAuthStore((s) => s.token)!
   const isMobile = useIsMobile()
+  const { success, error: showError } = useToast()
   const [members, setMembers] = useState<Member[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
+  const [page, setPage] = useState(1)
   const [modalOpen, setModalOpen] = useState(false)
   const [editing, setEditing] = useState<Member | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const [deletingId, setDeletingId] = useState<number | null>(null)
+  const [deactivatingId, setDeactivatingId] = useState<number | null>(null)
   const [error, setError] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
 
@@ -52,6 +58,7 @@ function AnggotaPage() {
     try {
       const data = await listMembers({ data: { token, search: search || undefined } })
       setMembers(data)
+      setPage(1)
     } catch (err: any) {
       setError(err?.message || 'Gagal memuat data')
     } finally {
@@ -66,10 +73,26 @@ function AnggotaPage() {
   const totalCount = members.length
   const activeCount = members.filter((m) => m.status === 'active').length
 
+  const paginatedMembers = useMemo(() => {
+    const start = (page - 1) * PAGE_SIZE
+    return members.slice(start, start + PAGE_SIZE)
+  }, [members, page])
+
+  const totalPages = Math.ceil(members.length / PAGE_SIZE) || 1
+
   const columns = useMemo(
     () => [
+      columnHelper.display({
+        id: 'name',
+        header: 'Nama',
+        cell: ({ row }) => (
+          <div className="flex items-center gap-3">
+            <Avatar name={row.original.name} size="sm" />
+            <span className="font-medium">{row.original.name}</span>
+          </div>
+        ),
+      }),
       columnHelper.accessor('code', { header: 'Kode', cell: (info) => info.getValue() }),
-      columnHelper.accessor('name', { header: 'Nama', cell: (info) => <span className="font-medium">{info.getValue()}</span> }),
       columnHelper.accessor('nik', { header: 'NIK', cell: (info) => info.getValue() || '-' }),
       columnHelper.accessor('phone', { header: 'Telepon', cell: (info) => info.getValue() || '-' }),
       columnHelper.accessor('status', {
@@ -78,26 +101,30 @@ function AnggotaPage() {
       }),
       columnHelper.display({
         id: 'actions',
-        header: () => <div style={{ textAlign: 'right' }}>Aksi</div>,
+        header: () => <div style={{ textAlign: 'right' }}>Kelola Data</div>,
         cell: ({ row }) => (
           <PageActions>
             <IconButton
-              icon={Edit2}
-              label="Edit"
+              icon={Pencil}
+              label="Ubah"
+              showLabel={true}
               onClick={() => {
                 setEditing(row.original)
                 setModalOpen(true)
               }}
             />
-            <IconButton
-              icon={Trash2}
-              label="Hapus"
-              variant="danger"
-              onClick={() => {
-                setDeletingId(row.original.id)
-                setConfirmOpen(true)
-              }}
-            />
+            {row.original.status === 'active' && (
+              <IconButton
+                icon={UserX}
+                label="Hapus"
+                showLabel={true}
+                variant="danger"
+                onClick={() => {
+                  setDeactivatingId(row.original.id)
+                  setConfirmOpen(true)
+                }}
+              />
+            )}
           </PageActions>
         ),
       }),
@@ -106,10 +133,9 @@ function AnggotaPage() {
   )
 
   const table = useReactTable({
-    data: members,
+    data: paginatedMembers,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
   })
 
   const handleSave = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -140,8 +166,10 @@ function AnggotaPage() {
     try {
       if (editing) {
         await updateMember({ data: { token, id: editing.id, ...values } })
+        success('Data anggota berhasil diperbarui')
       } else {
         await createMember({ data: { token, ...values } })
+        success('Anggota berhasil ditambahkan')
       }
       setModalOpen(false)
       setEditing(null)
@@ -149,19 +177,22 @@ function AnggotaPage() {
       await fetchMembers()
     } catch (err: any) {
       setError(err?.message || 'Gagal menyimpan')
+      showError(err?.message || 'Gagal menyimpan')
     }
   }
 
-  const handleDelete = async () => {
-    if (!deletingId) return
+  const handleDeactivate = async () => {
+    if (!deactivatingId) return
     setError('')
     try {
-      await deleteMember({ data: { token, id: deletingId } })
+      await deactivateMember({ data: { token, id: deactivatingId } })
       setConfirmOpen(false)
-      setDeletingId(null)
+      setDeactivatingId(null)
+      success('Anggota dinonaktifkan')
       await fetchMembers()
     } catch (err: any) {
-      setError(err?.message || 'Gagal menghapus')
+      setError(err?.message || 'Gagal menonaktifkan')
+      showError(err?.message || 'Gagal menonaktifkan')
     }
   }
 
@@ -191,44 +222,57 @@ function AnggotaPage() {
         <MetricCard label="Total Anggota" value={totalCount} icon={Users} />
         <MetricCard label="Anggota Aktif" value={activeCount} tone="success" icon={User} />
         <MetricCard label="Anggota Nonaktif" value={totalCount - activeCount} icon={User} />
-        <MetricCard label="Rasio Aktif" value={`${totalCount ? Math.round((activeCount / totalCount) * 100) : 0}%`} icon={Activity} />
+        <MetricCard label="Persentase Aktif" value={`${totalCount ? Math.round((activeCount / totalCount) * 100) : 0}%`} icon={Activity} />
       </div>
 
       {error && !modalOpen && !confirmOpen && <ErrorAlert message={error} />}
 
       {loading ? (
-        <p className="text-[13px] text-[var(--color-text-soft)]">Memuat...</p>
+        <LoadingSpinner />
       ) : members.length === 0 ? (
-        <EmptyState icon={User} message="Belum ada anggota." />
+        <EmptyState
+          icon={User}
+          message={search ? `Tidak ditemukan hasil untuk "${search}"` : "Belum ada anggota yang terdaftar."}
+          submessage={search ? "Coba kata kunci lain." : "Silakan tambah anggota baru."}
+          action={
+            search ? (
+              <button onClick={() => setSearch('')} className="btn btn-secondary">Hapus Pencarian</button>
+            ) : undefined
+          }
+        />
       ) : isMobile ? (
-        <div className="space-y-2">
+        <div className="space-y-3">
           {members.map((m) => (
-            <MobileRow
+            <EntityCard
               key={m.id}
-              header={m.name}
-              meta={[m.code, m.phone || 'No telepon tidak ada'].filter(Boolean).join(' • ')}
+              title={m.name}
+              subtitle={[m.code, m.phone || 'Telepon tidak tersedia'].filter(Boolean).join(' • ')}
               badge={<StatusBadge variant={m.status === 'active' ? 'active' : 'inactive'} />}
-              actions={
-                <>
-                  <IconButton
-                    icon={Edit2}
-                    label="Edit"
-                    onClick={() => {
-                      setEditing(m)
-                      setModalOpen(true)
-                    }}
-                  />
-                  <IconButton
-                    icon={Trash2}
-                    label="Hapus"
-                    variant="danger"
-                    onClick={() => {
-                      setDeletingId(m.id)
-                      setConfirmOpen(true)
-                    }}
-                  />
-                </>
-              }
+              meta={[
+                { label: 'NIK', value: m.nik || '-' },
+              ]}
+              actions={[
+                {
+                  label: 'Edit',
+                  variant: 'secondary',
+                  onClick: () => {
+                    setEditing(m)
+                    setModalOpen(true)
+                  },
+                },
+                ...(m.status === 'active'
+                  ? [
+                      {
+                        label: 'Nonaktifkan',
+                        variant: 'ghost' as const,
+                        onClick: () => {
+                          setDeactivatingId(m.id)
+                          setConfirmOpen(true)
+                        },
+                      },
+                    ]
+                  : []),
+              ]}
             />
           ))}
         </div>
@@ -256,6 +300,13 @@ function AnggotaPage() {
               ))}
             </tbody>
           </table>
+          <TablePagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            totalItems={members.length}
+            pageSize={PAGE_SIZE}
+          />
         </DataTable>
       )}
 
@@ -268,9 +319,28 @@ function AnggotaPage() {
           setFieldErrors({})
         }}
         title={editing ? 'Edit Anggota' : 'Tambah Anggota'}
+        footer={
+          <div className="flex flex-col-reverse sm:flex-row gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setModalOpen(false)
+                setEditing(null)
+                setError('')
+                setFieldErrors({})
+              }}
+              className="btn btn-secondary flex-1"
+            >
+              Batal
+            </button>
+            <button type="submit" form="memberForm" className="btn btn-primary flex-1">
+              Simpan
+            </button>
+          </div>
+        }
       >
-        {error && (modalOpen || confirmOpen) && <ErrorAlert message={error} className="mb-3" />}
-        <form onSubmit={handleSave} className="space-y-4" noValidate>
+        {error && modalOpen && <ErrorAlert message={error} className="mb-3" />}
+        <form id="memberForm" onSubmit={handleSave} className="space-y-4" noValidate>
           <div>
             <label htmlFor="code">Kode Anggota <span className="text-[var(--color-danger)] ml-0.5">*</span></label>
             <input id="code" name="code" defaultValue={editing?.code || ''} readOnly={!!editing} placeholder="Contoh: A001" required />
@@ -283,11 +353,11 @@ function AnggotaPage() {
           </div>
           <div>
             <label htmlFor="nik">NIK (KTP)</label>
-            <input id="nik" name="nik" defaultValue={editing?.nik || ''} placeholder="Nomor KTP" />
+            <input id="nik" name="nik" defaultValue={editing?.nik || ''} placeholder="Nomor KTP" inputMode="numeric" pattern="[0-9]*" />
           </div>
           <div>
             <label htmlFor="phone">Telepon</label>
-            <input id="phone" name="phone" defaultValue={editing?.phone || ''} placeholder="08xx-xxxx-xxxx" />
+            <input id="phone" name="phone" defaultValue={editing?.phone || ''} placeholder="08xx-xxxx-xxxx" inputMode="tel" />
           </div>
           <div>
             <label htmlFor="address">Alamat</label>
@@ -302,23 +372,6 @@ function AnggotaPage() {
               </select>
             </div>
           )}
-          <div className="flex flex-col-reverse sm:flex-row gap-2 pt-2">
-            <button
-              type="button"
-              onClick={() => {
-                setModalOpen(false)
-                setEditing(null)
-                setError('')
-                setFieldErrors({})
-              }}
-              className="btn btn-secondary flex-1"
-            >
-              Batal
-            </button>
-            <button type="submit" className="btn btn-primary flex-1">
-              Simpan
-            </button>
-          </div>
         </form>
       </Modal>
 
@@ -326,15 +379,17 @@ function AnggotaPage() {
         open={confirmOpen}
         onClose={() => {
           setConfirmOpen(false)
-          setDeletingId(null)
+          setDeactivatingId(null)
           setError('')
         }}
-        onConfirm={handleDelete}
-        title="Hapus Anggota?"
-        message="Data anggota akan dihapus permanen. Apakah Anda yakin?"
-        confirmText="Hapus"
+        onConfirm={handleDeactivate}
+        title="Nonaktifkan Anggota?"
+        message="Anggota tidak akan muncul di daftar aktif, tetapi riwayat transaksi tetap tersimpan."
+        confirmText="Nonaktifkan"
         variant="danger"
       />
     </div>
   )
 }
+
+
