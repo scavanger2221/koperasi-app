@@ -14,6 +14,12 @@ A **Progressive Web App (PWA)** backoffice for a Savings & Loans Cooperative (Ko
 
 ---
 
+## Agent Instructions
+
+- When the instruction is clear, don't overthink. If it doesn't make sense, ask the user first.
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -221,46 +227,20 @@ const result = await myAction({ data: { token, ... } })
 ## Common Commands
 
 ```bash
-# Dev server (port 3000)
-npm run dev
-
-# Production build
-npm run build
-
-# Database
-npm run db:generate   # Generate Drizzle migrations
+npm run dev           # Dev server
+npm run build         # Production build
+npm run db:generate   # Generate migrations
 npm run db:migrate    # Run migrations
 npm run db:seed       # Seed demo data
-npm run db:studio     # Drizzle Studio
-
-# Routes
 npm run routes:generate
-npm run routes:watch
-
-# TanStack CLI
-npx tanstack add <add-on>
-npx tanstack search-docs "loaders" --library router --framework react --json
-
-## Debugging TanStack Issues
-
-If you're stuck debugging TanStack-related things (router, start, table, query, etc.), use the TanStack CLI to search official docs:
-
-```bash
-# Search docs for specific topic (returns JSON for agent parsing)
-npx tanstack search-docs "server functions" --library start --json
-npx tanstack search-docs "file-based routing" --library router --framework react --json
-npx tanstack search-docs "createServerFn" --library start --json
-
-# Get specific doc page
-npx tanstack doc query framework/react/start/overview --json
-npx tanstack doc query router/concepts/routing --json
-
-# List available libraries
-npx tanstack libraries --json
 ```
 
-Use `--json` flag for machine-readable output when working with agents/automation.
-```
+---
+
+## Debugging Rules
+
+### Trust the Stack Trace
+When a React component throws with a clear line number, **fix it there first**. Do not spiral into checking the database schema, generating fake tokens, or curling `createServerFn` RPC endpoints unless the stack trace points to a server file.
 
 ---
 
@@ -291,19 +271,4 @@ Auth uses signed session tokens stored in Zustand + `localStorage`.
 
 ## AI / Agent Integration
 
-**Note:** TanStack CLI's MCP server has been removed. Use direct CLI commands with `--json` output for agent introspection and automation.
-
-```bash
-# List add-ons
-npx tanstack create --list-add-ons --framework React --json
-
-# Get add-on details
-npx tanstack create --addon-details drizzle --framework React --json
-
-# Search docs
-npx tanstack search-docs "server functions" --library start --json
-npx tanstack doc query framework/react/overview --json
-
-# List libraries
-npx tanstack libraries --json
-```
+Use the TanStack CLI with `--json` for machine-readable docs when needed.
