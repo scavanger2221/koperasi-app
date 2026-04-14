@@ -62,8 +62,8 @@ Use `useIsMobile()` hook to branch layouts. Do NOT render TanStack Table on mobi
 ```
 src/
 ├── components/
-│   ├── layout/          # DesktopSidebar, MobileNav, MobileMenu
-│   ├── ui/              # Modal, ConfirmDialog, etc.
+│   ├── layout/          # DesktopSidebar, MobileNav, MobileMenu, AppTopBar
+│   ├── ui/              # Modal, ConfirmDialog, MetricCard, MobileRow, etc.
 │   └── LoginForm.tsx
 ├── db/
 │   ├── client.server.ts # Drizzle client (server-only)
@@ -96,6 +96,39 @@ src/
 ├── router.tsx           # Router setup
 └── app.config.ts        # TanStack Start config (auto-generated)
 ```
+
+---
+
+## Mobile Card List Patterns
+
+After several redesign rounds, the following patterns are **proven** for mobile card lists:
+
+1. **Vertical stacking** — never squeeze name, badge, and action button horizontally.
+2. **Full-width action buttons** — place the primary action (e.g. "Bayar", "Cairkan") at the **bottom** of the card.
+3. **No text truncation** on member names — use `break-words` so names wrap naturally.
+4. **Clear hierarchy** — large bold name (`16px+`), muted meta below (`13px`), details in rows, action button last.
+5. **Friendly empty states** — if a chart or list has no data, show a clear message (e.g. *"Belum ada data tren untuk 6 bulan terakhir"*) instead of a broken-looking flat line.
+
+The `angsuran.tsx` mobile list is the current reference implementation.
+
+---
+
+## Component Conventions
+
+### `MetricCard`
+Props: `label`, `value`, `subtext?`, `tone?`, `icon?`
+- Always use **icons** and **tone backgrounds** for semantic meaning (green = savings, red = debt, yellow = attention).
+- Value text is `text-xl sm:text-2xl md:text-[28px]` and bold.
+- **Mobile layout:** Metric cards must be **full-width** (`grid-cols-1` on mobile) so large currency values like `Rp 5.916.666` never overflow.
+
+### `MobileRow`
+A generic collapsible row. Use it only when horizontal space is sufficient (no badge + button conflict). For complex rows, prefer a custom vertical card.
+
+### `Modal`
+Uses a bottom-sheet on mobile (`h-[92vh]`) and a centered dialog on desktop. Keep form inputs stacked vertically inside modals.
+
+### `StatusBadge`
+Small, rounded pill. Variants map to the design-system colors.
 
 ---
 
@@ -160,9 +193,9 @@ const result = await myAction({ data: { token, ... } })
    export const Route = createFileRoute('/my-route')({ component: MyRoute })
    function MyRoute() { return <div>...</div> }
    ```
-2. If using TanStack Start's file router, the route tree regenerates automatically on `pnpm dev`. If not, run:
+2. If using TanStack Start's file router, the route tree regenerates automatically on `npm run dev`. If not, run:
    ```bash
-   pnpm routes:generate
+   npm run routes:generate
    ```
 3. Add navigation link in both `DesktopSidebar.tsx` and `MobileNav.tsx` / `MobileMenu.tsx`.
 
@@ -172,8 +205,8 @@ const result = await myAction({ data: { token, ... } })
 
 1. Add table definition to `src/db/schema.ts`.
 2. Add relations if it links to existing tables.
-3. Run `pnpm db:generate` to create migration.
-4. Run `pnpm db:migrate` to apply it.
+3. Run `npm run db:generate` to create migration.
+4. Run `npm run db:migrate` to apply it.
 5. Create server functions in a new `src/lib/myFeatureFns.ts` file.
 6. Build the UI in `src/routes/my-feature.tsx`.
 
@@ -183,20 +216,20 @@ const result = await myAction({ data: { token, ... } })
 
 ```bash
 # Dev server (port 3000)
-pnpm dev
+npm run dev
 
 # Production build
-pnpm build
+npm run build
 
 # Database
-pnpm db:generate   # Generate Drizzle migrations
-pnpm db:migrate    # Run migrations
-pnpm db:seed       # Seed demo data
-pnpm db:studio     # Drizzle Studio
+npm run db:generate   # Generate Drizzle migrations
+npm run db:migrate    # Run migrations
+npm run db:seed       # Seed demo data
+npm run db:studio     # Drizzle Studio
 
 # Routes
-pnpm routes:generate
-pnpm routes:watch
+npm run routes:generate
+npm run routes:watch
 
 # TanStack CLI
 npx tanstack add <add-on>
