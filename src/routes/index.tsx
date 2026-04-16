@@ -19,15 +19,14 @@ import {
   Search,
 } from 'lucide-react'
 import {
-  AreaChart,
-  Area,
+  LineChart,
+  Line,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
 } from 'recharts'
-
 export const Route = createFileRoute('/')({
   component: DashboardPage,
 })
@@ -75,12 +74,12 @@ function DashboardPage() {
           <h2 className="text-2xl md:text-3xl font-extrabold text-[var(--color-text)] tracking-tighter uppercase">
             Selamat datang, <span className="text-[var(--color-primary)]">{user?.name?.split(' ')[0] || 'Pengguna'}</span>
           </h2>
-          <p className="text-[13px] font-bold text-[var(--color-text-soft)] uppercase tracking-widest mt-2 flex items-center gap-2">
+          <p className="text-sm font-bold text-[var(--color-text-soft)] uppercase tracking-widest mt-2 flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-[var(--color-primary)]" /> Ringkasan Koperasi Hari Ini
           </p>
         </div>
         <div className="hidden md:block">
-          <div className="text-[11px] font-extrabold text-[var(--color-text-soft)] uppercase tracking-widest bg-[var(--color-bg-soft)] px-4 py-2 rounded-lg border border-[var(--color-border)]">
+          <div className="text-xs font-extrabold text-[var(--color-text-soft)] uppercase tracking-widest bg-[var(--color-bg-soft)] px-4 py-2 rounded-md border border-[var(--color-border)]">
             {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
           </div>
         </div>
@@ -92,21 +91,21 @@ function DashboardPage() {
         <>
           {/* URGENT: Tunggakan Alert (Responsive Compact Bar) */}
           {stats.tunggakan > 0 && (
-            <div className="card border-l-4 border-[var(--color-danger)] bg-white overflow-hidden animate-in slide-in-from-top-4 duration-500 shadow-sm">
+            <div className="card border-l-4 border-[var(--color-danger)] bg-[var(--color-bg)] overflow-hidden animate-in slide-in-from-top-4 duration-500 shadow-sm">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:px-5 sm:py-3 gap-4 relative">
                 <div className="flex items-center gap-4 relative z-10">
-                  <div className="w-10 h-10 rounded-lg bg-[var(--color-danger-light)] text-[var(--color-danger)] flex items-center justify-center shrink-0 border border-[var(--color-danger)]/10">
-                    <AlertTriangle className="w-5 h-5 stroke-[2.5px]" />
+                  <div className="w-10 h-10 rounded-md bg-[var(--color-danger-light)] text-[var(--color-danger)] flex items-center justify-center shrink-0 border border-[var(--color-danger)]/10">
+                    <AlertTriangle className="w-5 h-5" strokeWidth={2.5} />
                   </div>
                   <div className="flex flex-row items-center gap-3">
                     <span className="text-xl font-black text-[var(--color-danger)] tabular-nums leading-none">
                       {stats.tunggakan}
                     </span>
-                    <h3 className="text-[13px] font-extrabold text-[var(--color-text)] tracking-tight uppercase leading-none">
+                    <h3 className="text-sm font-extrabold text-[var(--color-text)] tracking-tight uppercase leading-none">
                       Angsuran Menunggak
                     </h3>
                     <div className="hidden lg:block w-px h-4 bg-[var(--color-border)] mx-1" />
-                    <p className="hidden lg:block text-[11px] font-bold text-[var(--color-text-soft)] uppercase tracking-widest">
+                    <p className="hidden lg:block text-xs font-bold text-[var(--color-text-soft)] uppercase tracking-widest">
                       Segera tinjau laporan untuk menjaga arus kas
                     </p>
                   </div>
@@ -116,9 +115,9 @@ function DashboardPage() {
                   <Link
                     to="/laporan"
                     search={{ tab: 'tunggakan' }}
-                    className="btn btn-danger btn-sm w-full sm:w-auto px-6 text-[10px] font-black uppercase tracking-widest min-h-[40px] sm:min-h-[36px]"
+                    className="btn btn-danger btn-sm w-full sm:w-auto px-6 text-2xs font-black uppercase tracking-widest min-h-[40px] sm:min-h-[36px]"
                   >
-                    Tinjau Laporan <ArrowRight className="w-4 h-4 ml-2 stroke-[3.5px]" />
+                    Tinjau Laporan <ArrowRight className="w-4 h-4 ml-2" strokeWidth={3.5} />
                   </Link>
                 </div>
               </div>
@@ -172,17 +171,7 @@ function DashboardPage() {
                 ) : (
                   <>
                     <ResponsiveContainer width="100%" height={280}>
-                      <AreaChart data={chartData} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
-                        <defs>
-                          <linearGradient id="colorSimpanan" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--color-success)" stopOpacity={0.15} />
-                            <stop offset="95%" stopColor="var(--color-success)" stopOpacity={0} />
-                          </linearGradient>
-                          <linearGradient id="colorPinjaman" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="var(--color-danger)" stopOpacity={0.15} />
-                            <stop offset="95%" stopColor="var(--color-danger)" stopOpacity={0} />
-                          </linearGradient>
-                        </defs>
+                      <LineChart data={chartData} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
                         <CartesianGrid strokeDasharray="4 4" vertical={false} stroke="var(--color-border)" opacity={0.5} />
                         <XAxis 
                           dataKey="label" 
@@ -200,42 +189,41 @@ function DashboardPage() {
                         <Tooltip
                           formatter={(value) => [formatCurrency(Number(value || 0)), '']}
                           contentStyle={{
-                            borderRadius: 12,
+                            borderRadius: 8,
                             border: '1px solid var(--color-border)',
-                            boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)',
                             fontSize: 12,
                             fontWeight: 700,
                             padding: '12px',
                           }}
                         />
-                        <Area
+                        <Line
                           type="monotone"
                           dataKey="simpanan"
                           name="Simpanan"
                           stroke="var(--color-success)"
-                          fillOpacity={1}
-                          fill="url(#colorSimpanan)"
                           strokeWidth={3}
+                          dot={false}
+                          activeDot={{ r: 4 }}
                         />
-                        <Area
+                        <Line
                           type="monotone"
                           dataKey="pinjaman"
                           name="Pinjaman"
                           stroke="var(--color-danger)"
-                          fillOpacity={1}
-                          fill="url(#colorPinjaman)"
                           strokeWidth={3}
+                          dot={false}
+                          activeDot={{ r: 4 }}
                         />
-                      </AreaChart>
+                      </LineChart>
                     </ResponsiveContainer>
                     <div className="flex items-center justify-center gap-6 mt-6">
                       <div className="flex items-center gap-2">
                         <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-success)]" />
-                        <span className="text-[11px] font-extrabold text-[var(--color-text-soft)] uppercase tracking-widest">Simpanan</span>
+                        <span className="text-xs font-extrabold text-[var(--color-text-soft)] uppercase tracking-widest">Simpanan</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <div className="w-2.5 h-2.5 rounded-full bg-[var(--color-danger)]" />
-                        <span className="text-[11px] font-extrabold text-[var(--color-text-soft)] uppercase tracking-widest">Pinjaman</span>
+                        <span className="text-xs font-extrabold text-[var(--color-text-soft)] uppercase tracking-widest">Pinjaman</span>
                       </div>
                     </div>
                   </>
@@ -246,32 +234,32 @@ function DashboardPage() {
             {/* Quick Actions & Alerts */}
             <div className="space-y-6">
               <div className="flex flex-col gap-3">
-                <p className="text-[11px] font-extrabold text-[var(--color-text-soft)] uppercase tracking-widest px-1">Akses Cepat</p>
-                <Link to="/laporan" search={{ tab: 'simpanan' }} className="card p-5 flex items-center gap-4 hover:border-[var(--color-primary)] hover:shadow-md transition-all group bg-white">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--color-success-light)] text-[var(--color-success)] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <p className="text-xs font-extrabold text-[var(--color-text-soft)] uppercase tracking-widest px-1">Akses Cepat</p>
+                <Link to="/laporan" search={{ tab: 'simpanan' }} className="card p-5 flex items-center gap-4 hover:border-[var(--color-primary)] transition-all group bg-[var(--color-bg)]">
+                  <div className="w-12 h-12 rounded-md bg-[var(--color-success-light)] text-[var(--color-success)] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                     <PiggyBank className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-[15px] font-extrabold text-[var(--color-text)] leading-tight">Laporan Simpanan</p>
-                    <p className="text-[12px] font-bold text-[var(--color-text-soft)] mt-1 uppercase tracking-tighter">Detail Transaksi</p>
+                    <p className="text-base font-extrabold text-[var(--color-text)] leading-tight">Laporan Simpanan</p>
+                    <p className="text-xs font-bold text-[var(--color-text-soft)] mt-1 uppercase tracking-tighter">Detail Transaksi</p>
                   </div>
                 </Link>
-                <Link to="/laporan" search={{ tab: 'pinjaman' }} className="card p-5 flex items-center gap-4 hover:border-[var(--color-primary)] hover:shadow-md transition-all group bg-white">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--color-danger-light)] text-[var(--color-danger)] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Link to="/laporan" search={{ tab: 'pinjaman' }} className="card p-5 flex items-center gap-4 hover:border-[var(--color-primary)] transition-all group bg-[var(--color-bg)]">
+                  <div className="w-12 h-12 rounded-md bg-[var(--color-danger-light)] text-[var(--color-danger)] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                     <BarChart3 className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-[15px] font-extrabold text-[var(--color-text)] leading-tight">Laporan Pinjaman</p>
-                    <p className="text-[12px] font-bold text-[var(--color-text-soft)] mt-1 uppercase tracking-tighter">Detail Pinjaman</p>
+                    <p className="text-base font-extrabold text-[var(--color-text)] leading-tight">Laporan Pinjaman</p>
+                    <p className="text-xs font-bold text-[var(--color-text-soft)] mt-1 uppercase tracking-tighter">Detail Pinjaman</p>
                   </div>
                 </Link>
-                <Link to="/angsuran" className="card p-5 flex items-center gap-4 hover:border-[var(--color-primary)] hover:shadow-md transition-all group bg-white">
-                  <div className="w-12 h-12 rounded-xl bg-[var(--color-warning-light)] text-[var(--color-warning)] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <Link to="/angsuran" className="card p-5 flex items-center gap-4 hover:border-[var(--color-primary)] transition-all group bg-[var(--color-bg)]">
+                  <div className="w-12 h-12 rounded-md bg-[var(--color-warning-light)] text-[var(--color-warning)] flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                     <Search className="w-6 h-6" />
                   </div>
                   <div>
-                    <p className="text-[15px] font-extrabold text-[var(--color-text)] leading-tight">Cek Angsuran</p>
-                    <p className="text-[12px] font-bold text-[var(--color-text-soft)] mt-1 uppercase tracking-tighter">Pantau Pembayaran</p>
+                    <p className="text-base font-extrabold text-[var(--color-text)] leading-tight">Cek Angsuran</p>
+                    <p className="text-xs font-bold text-[var(--color-text-soft)] mt-1 uppercase tracking-tighter">Pantau Pembayaran</p>
                   </div>
                 </Link>
               </div>

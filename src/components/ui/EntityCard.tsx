@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { cn } from '../../lib/utils'
 
 interface MetaItem {
   label?: string
@@ -17,6 +18,7 @@ export function EntityCard({
   title,
   subtitle,
   badge,
+  number,
   meta = [],
   actions = [],
   className = '',
@@ -24,6 +26,7 @@ export function EntityCard({
   title: string
   subtitle?: string
   badge?: ReactNode
+  number?: number
   meta?: MetaItem[]
   actions?: Action[]
   className?: string
@@ -36,12 +39,19 @@ export function EntityCard({
   }
 
   return (
-    <div className={['card p-5 space-y-4 shadow-sm hover:shadow-md transition-shadow duration-200', className].join(' ')}>
+    <div className={cn('card p-5 space-y-4 transition-shadow duration-200', className)}>
       <div className="flex items-start justify-between gap-4 pb-4 border-b border-[var(--color-border)]">
-        <div className="min-w-0">
-          <p className="text-[16px] font-extrabold text-[var(--color-text)] tracking-tight uppercase leading-tight">{title}</p>
+        {typeof number === 'number' && (
+          <div className="shrink-0 mr-2">
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[var(--color-bg-soft)] text-[var(--color-text)] text-sm font-extrabold">
+              {number}
+            </span>
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <p className="text-lg font-extrabold text-[var(--color-text)] tracking-tight uppercase leading-tight">{title}</p>
           {subtitle && (
-            <p className="text-[11px] font-bold text-[var(--color-text-soft)] uppercase tracking-wider mt-1">
+            <p className="text-xs font-bold text-[var(--color-text-soft)] uppercase tracking-wider mt-1">
               {subtitle}
             </p>
           )}
@@ -52,18 +62,18 @@ export function EntityCard({
       {meta.length > 0 && (
         <div className="space-y-3">
           {meta.map((m, idx) => (
-            <div key={idx} className={['flex justify-between items-center gap-4', m.className].join(' ')}>
+            <div key={idx} className={cn('flex justify-between items-center gap-4', m.className)}>
               {m.label ? (
                 <>
-                  <span className="text-[10px] text-[var(--color-text-soft)] font-extrabold uppercase tracking-widest leading-none">
+                  <span className="text-2xs text-[var(--color-text-soft)] font-extrabold uppercase tracking-widest leading-none">
                     {m.label}
                   </span>
-                  <span className="text-[14px] font-bold text-[var(--color-text)] text-right leading-none tabular-nums">
+                  <span className="text-sm font-bold text-[var(--color-text)] text-right leading-none tabular-nums">
                     {m.value}
                   </span>
                 </>
               ) : (
-                <div className="text-[14px] font-bold text-[var(--color-text)] w-full">
+                <div className="text-sm font-bold text-[var(--color-text)] w-full">
                   {m.value}
                 </div>
               )}

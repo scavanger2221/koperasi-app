@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import { CheckCircle, AlertCircle, X, Info } from 'lucide-react'
+import { cn } from '../../lib/utils'
+import { IconButton } from './IconButton'
 
 type ToastType = 'success' | 'error' | 'info'
 
@@ -70,9 +72,9 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
   }, [])
 
   const icons = {
-    success: <CheckCircle className="w-5 h-5 text-[var(--color-success)] stroke-[2.5px]" />,
-    error: <AlertCircle className="w-5 h-5 text-[var(--color-danger)] stroke-[2.5px]" />,
-    info: <Info className="w-5 h-5 text-[var(--color-primary)] stroke-[2.5px]" />,
+    success: <CheckCircle className="w-5 h-5 text-[var(--color-success)]" strokeWidth={2.5} />,
+    error: <AlertCircle className="w-5 h-5 text-[var(--color-danger)]" strokeWidth={2.5} />,
+    info: <Info className="w-5 h-5 text-[var(--color-primary)]" strokeWidth={2.5} />,
   }
 
   const accentColors = {
@@ -83,21 +85,15 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
 
   return (
     <div
-      className={[
-        'pointer-events-auto w-full bg-white border border-[var(--color-border)] rounded-xl shadow-lg p-4 flex items-start gap-4 overflow-hidden relative group transition-all animate-in fade-in slide-in-from-top-4 duration-300',
-      ].join(' ')}
+      className={cn(
+        'pointer-events-auto w-full bg-white border border-[var(--color-border)] rounded-xl p-4 flex items-start gap-4 overflow-hidden relative group transition-all animate-in fade-in slide-in-from-top-4 duration-300'
+      )}
     >
       <div className="shrink-0 mt-0.5">{icons[toast.type]}</div>
       <div className="flex-1 min-w-0">
-        <p className="text-[14px] font-bold text-[var(--color-text)] leading-tight">{toast.message}</p>
+        <p className="text-sm font-bold text-[var(--color-text)] leading-tight">{toast.message}</p>
       </div>
-      <button
-        onClick={() => onRemove(toast.id)}
-        className="shrink-0 p-1 rounded-md hover:bg-[var(--color-bg-soft)] text-[var(--color-text-soft)] transition-colors"
-        aria-label="Tutup"
-      >
-        <X className="w-4 h-4 stroke-[2.5px]" />
-      </button>
+      <IconButton icon={X} label="Tutup" onClick={() => onRemove(toast.id)} variant="ghost" className="shrink-0" />
 
       {/* Progress Bar */}
       <div className="absolute bottom-0 left-0 right-0 h-1 bg-[var(--color-bg-soft)]">

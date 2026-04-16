@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react'
+import { cn } from '../../lib/utils'
 
 export function MetricCard({
   label,
@@ -47,23 +48,23 @@ export function MetricCard({
   const t = toneClasses[tone]
 
   return (
-    <div className={['card p-5 flex flex-col justify-between min-h-[128px]', t.card].join(' ')}>
+    <div className={cn('card p-5 flex flex-col justify-between min-h-[128px]', t.card)}>
       <div className="flex items-start justify-between gap-2">
-        <p className={['text-[11px] font-extrabold uppercase tracking-wider leading-none', t.label].join(' ')}>
+        <p className={cn('text-xs font-extrabold uppercase tracking-wider leading-none', t.label)}>
           {label}
         </p>
         {Icon && (
-          <div className={['shrink-0 p-2 rounded-lg', t.iconBg, t.iconText].join(' ')}>
+          <div className={cn('shrink-0 p-2 rounded-lg', t.iconBg, t.iconText)}>
             <Icon className="w-5 h-5" />
           </div>
         )}
       </div>
       <div className="mt-4">
-        <p className={['text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight leading-none', t.value].join(' ')}>
+        <p className={cn('text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight leading-none', t.value)}>
           {value}
         </p>
         {subtext && (
-          <p className="text-[11px] font-semibold text-[var(--color-text-soft)] mt-2 flex items-center gap-1.5 uppercase tracking-wide">
+          <p className="text-xs font-semibold text-[var(--color-text-soft)] mt-2 flex items-center gap-1.5 uppercase tracking-wide">
             {subtext}
           </p>
         )}

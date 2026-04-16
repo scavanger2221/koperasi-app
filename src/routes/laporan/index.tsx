@@ -1,5 +1,5 @@
 import { createFileRoute, useSearch } from '@tanstack/react-router'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '../../stores/auth'
 import { useIsMobile } from '../../hooks/useIsMobile'
 import { usePagination } from '../../hooks/usePagination'
@@ -11,6 +11,8 @@ import { PinjamanReport } from './-PinjamanReport'
 import { AngsuranReport } from './-AngsuranReport'
 import { TunggakanReport } from './-TunggakanReport'
 import { BarChart3, Receipt, Calendar, AlertTriangle } from 'lucide-react'
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner'
+import { ErrorAlert } from '../../components/ui/ErrorAlert'
 import { ERROR_MESSAGES } from '../../constants/messages'
 
 export const Route = createFileRoute('/laporan/')({
@@ -55,7 +57,7 @@ function LaporanPage() {
     setPage(1)
   }, [data, setPage])
 
-  const fetchReport = async () => {
+  const fetchReport = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
@@ -78,16 +80,15 @@ function LaporanPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [token, tab, from, to])
 
   useEffect(() => {
     setData(null)
     setLoading(true)
     fetchReport()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab])
+  }, [fetchReport])
 
-  if (loading) return <div className="flex items-center justify-center py-12">Memuat...</div>
+  if (loading && !data) return <LoadingSpinner message="Memuat laporan..." />
 
   return (
     <div className="space-y-4">
@@ -106,7 +107,7 @@ function LaporanPage() {
         />
       )}
 
-      {error && <div className="text-red-600 font-medium">{error}</div>}
+      {error && <ErrorAlert message={error} />}
 
       {tab === 'simpanan' && data && (
         <SimpananReport

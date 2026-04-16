@@ -2,25 +2,18 @@ import { createServerFn } from '@tanstack/react-start'
 import { db } from '../db/client.server'
 import { members, jenisSimpanan, simpanan } from '../db/schema'
 import { eq, and, desc, sql, like } from 'drizzle-orm'
-import { verifyPayload } from './session.server'
-
-function verifyToken(data: { token: string }) {
-  const payload = verifyPayload(data.token)
-  if (!payload) throw new Error('Sesi tidak valid')
-  return payload
-}
+import { withAuth } from './authUtils'
+import type { SimpananType } from '../constants/status'
 
 export const listJenisSimpanan = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string }) => data)
-  .handler(async ({ data }) => {
-    verifyToken(data)
+  .handler(withAuth(async (_data) => {
     return db.query.jenisSimpanan.findMany({ orderBy: jenisSimpanan.id })
-  })
+  }))
 
 export const listSimpanan = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string; memberId?: number; search?: string }) => data)
-  .handler(async ({ data }) => {
-    verifyToken(data)
+  .handler(withAuth(async (data) => {
     const rows = await db
       .select({
         id: simpanan.id,
@@ -58,12 +51,11 @@ export const listSimpanan = createServerFn({ method: 'POST' })
       .orderBy(desc(simpanan.date))
       .limit(200)
     return rows as any
-  })
+  }))
 
 export const getMemberSimpananBalance = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string; memberId: number; jenisSimpananId?: number }) => data)
-  .handler(async ({ data }) => {
-    verifyToken(data)
+  .handler(withAuth(async (data) => {
     const rows = await db
       .select({
         jenisId: simpanan.jenisSimpananId,
@@ -78,12 +70,11 @@ export const getMemberSimpananBalance = createServerFn({ method: 'POST' })
       ))
       .groupBy(simpanan.jenisSimpananId, jenisSimpanan.name)
     return rows
-  })
+  }))
 
 export const createSimpanan = createServerFn({ method: 'POST' })
-  .inputValidator((data: { token: string; memberId: number; jenisSimpananId: number; type: 'deposit' | 'withdrawal'; amount: number; date: string; notes?: string }) => data)
-  .handler(async ({ data }) => {
-    verifyToken(data)
+  .inputValidator((data: { token: string; memberId: number; jenisSimpananId: number; type: SimpananType; amount: number; date: string; notes?: string }) => data)
+  .handler(withAuth(async (data) => {
     const amount = Math.abs(data.amount)
     if (amount <= 0) throw new Error('Jumlah harus lebih dari 0')
 
@@ -109,4 +100,4 @@ export const createSimpanan = createServerFn({ method: 'POST' })
       createdBy: undefined,
     }).returning()
     return trx
-  })
+  }))

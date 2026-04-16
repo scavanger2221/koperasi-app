@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute, Outlet, Link } from '@tanstack/react-router'
+import { HeadContent, Scripts, createRootRoute, Outlet, Link, useRouterState } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { useAuthStore } from '../stores/auth'
 import { LoginForm } from '../components/LoginForm'
@@ -8,6 +8,7 @@ import { MobileNav } from '../components/layout/MobileNav'
 import { ToastProvider } from '../components/ui/ToastProvider'
 import { useIsMobile } from '../hooks/useIsMobile'
 import { Home } from 'lucide-react'
+import { cn } from '../lib/utils'
 
 import appCss from '../styles.css?url'
 
@@ -67,6 +68,7 @@ function AppLayout() {
   const token = useAuthStore((s) => s.token)
   const isMobile = useIsMobile()
   const [mounted, setMounted] = useState(false)
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
 
   useEffect(() => {
     setMounted(true)
@@ -75,36 +77,42 @@ function AppLayout() {
   // Prevent hydration mismatch: Server (no local storage) renders the same shell
   // but it MUST include the Outlet, otherwise TanStack Router complains about
   // missing HTML. We just hide it until mounted.
+  const content = !token ? (
+    <LoginForm />
+  ) : (
+    <div className="min-h-screen bg-[var(--color-bg-soft)]">
+      <AppTopBar />
+      {!isMobile && <DesktopSidebar />}
+
+      <main
+        className={cn(
+          'min-h-screen pt-[var(--header-height)]',
+          !isMobile ? 'md:pl-[var(--sidebar-width)]' : 'pb-[var(--mobile-nav-height)]'
+        )}
+      >
+        <div className="p-4 md:p-5 overflow-x-hidden">
+          {isMobile ? (
+            <div key={pathname} className="page-enter-mobile">
+              <Outlet />
+            </div>
+          ) : (
+            <Outlet />
+          )}
+        </div>
+      </main>
+      {isMobile && <MobileNav />}
+    </div>
+  )
+
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-[var(--color-bg-soft)] hidden" suppressHydrationWarning>
-        <Outlet />
-      </div>
+      <ToastProvider>
+        <div className="min-h-screen bg-[var(--color-bg-soft)] hidden" suppressHydrationWarning>
+          <Outlet />
+        </div>
+      </ToastProvider>
     )
   }
 
-  if (!token) {
-    return <LoginForm />
-  }
-
-  return (
-    <ToastProvider>
-      <div className="min-h-screen bg-[var(--color-bg-soft)]">
-        <AppTopBar />
-        {!isMobile && <DesktopSidebar />}
-
-        <main
-          className={[
-            'min-h-screen pt-16', // 16 matches h-16 of AppTopBar
-            !isMobile ? 'md:pl-64' : 'pb-24', // pb-24 ensures content clears mobile nav
-          ].join(' ')}
-        >
-          <div className="p-4 md:p-5">
-            <Outlet />
-          </div>
-        </main>
-        {isMobile && <MobileNav />}
-      </div>
-    </ToastProvider>
-  )
+  return <ToastProvider>{content}</ToastProvider>
 }

@@ -9,136 +9,101 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SimpananRouteImport } from './routes/simpanan'
-import { Route as PinjamanRouteImport } from './routes/pinjaman'
-import { Route as LaporanRouteImport } from './routes/laporan'
-import { Route as AngsuranRouteImport } from './routes/angsuran'
-import { Route as AnggotaRouteImport } from './routes/anggota'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SimpananIndexRouteImport } from './routes/simpanan/index'
+import { Route as PinjamanIndexRouteImport } from './routes/pinjaman/index'
+import { Route as LaporanIndexRouteImport } from './routes/laporan/index'
+import { Route as AngsuranIndexRouteImport } from './routes/angsuran/index'
+import { Route as AnggotaIndexRouteImport } from './routes/anggota/index'
 
-const SimpananRoute = SimpananRouteImport.update({
-  id: '/simpanan',
-  path: '/simpanan',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PinjamanRoute = PinjamanRouteImport.update({
-  id: '/pinjaman',
-  path: '/pinjaman',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LaporanRoute = LaporanRouteImport.update({
-  id: '/laporan',
-  path: '/laporan',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AngsuranRoute = AngsuranRouteImport.update({
-  id: '/angsuran',
-  path: '/angsuran',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AnggotaRoute = AnggotaRouteImport.update({
-  id: '/anggota',
-  path: '/anggota',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SimpananIndexRoute = SimpananIndexRouteImport.update({
+  id: '/simpanan/',
+  path: '/simpanan/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PinjamanIndexRoute = PinjamanIndexRouteImport.update({
+  id: '/pinjaman/',
+  path: '/pinjaman/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LaporanIndexRoute = LaporanIndexRouteImport.update({
+  id: '/laporan/',
+  path: '/laporan/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AngsuranIndexRoute = AngsuranIndexRouteImport.update({
+  id: '/angsuran/',
+  path: '/angsuran/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnggotaIndexRoute = AnggotaIndexRouteImport.update({
+  id: '/anggota/',
+  path: '/anggota/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/anggota': typeof AnggotaRoute
-  '/angsuran': typeof AngsuranRoute
-  '/laporan': typeof LaporanRoute
-  '/pinjaman': typeof PinjamanRoute
-  '/simpanan': typeof SimpananRoute
+  '/anggota/': typeof AnggotaIndexRoute
+  '/angsuran/': typeof AngsuranIndexRoute
+  '/laporan/': typeof LaporanIndexRoute
+  '/pinjaman/': typeof PinjamanIndexRoute
+  '/simpanan/': typeof SimpananIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/anggota': typeof AnggotaRoute
-  '/angsuran': typeof AngsuranRoute
-  '/laporan': typeof LaporanRoute
-  '/pinjaman': typeof PinjamanRoute
-  '/simpanan': typeof SimpananRoute
+  '/anggota': typeof AnggotaIndexRoute
+  '/angsuran': typeof AngsuranIndexRoute
+  '/laporan': typeof LaporanIndexRoute
+  '/pinjaman': typeof PinjamanIndexRoute
+  '/simpanan': typeof SimpananIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/anggota': typeof AnggotaRoute
-  '/angsuran': typeof AngsuranRoute
-  '/laporan': typeof LaporanRoute
-  '/pinjaman': typeof PinjamanRoute
-  '/simpanan': typeof SimpananRoute
+  '/anggota/': typeof AnggotaIndexRoute
+  '/angsuran/': typeof AngsuranIndexRoute
+  '/laporan/': typeof LaporanIndexRoute
+  '/pinjaman/': typeof PinjamanIndexRoute
+  '/simpanan/': typeof SimpananIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/anggota'
-    | '/angsuran'
-    | '/laporan'
-    | '/pinjaman'
-    | '/simpanan'
+    | '/anggota/'
+    | '/angsuran/'
+    | '/laporan/'
+    | '/pinjaman/'
+    | '/simpanan/'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/anggota' | '/angsuran' | '/laporan' | '/pinjaman' | '/simpanan'
   id:
     | '__root__'
     | '/'
-    | '/anggota'
-    | '/angsuran'
-    | '/laporan'
-    | '/pinjaman'
-    | '/simpanan'
+    | '/anggota/'
+    | '/angsuran/'
+    | '/laporan/'
+    | '/pinjaman/'
+    | '/simpanan/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AnggotaRoute: typeof AnggotaRoute
-  AngsuranRoute: typeof AngsuranRoute
-  LaporanRoute: typeof LaporanRoute
-  PinjamanRoute: typeof PinjamanRoute
-  SimpananRoute: typeof SimpananRoute
+  AnggotaIndexRoute: typeof AnggotaIndexRoute
+  AngsuranIndexRoute: typeof AngsuranIndexRoute
+  LaporanIndexRoute: typeof LaporanIndexRoute
+  PinjamanIndexRoute: typeof PinjamanIndexRoute
+  SimpananIndexRoute: typeof SimpananIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/simpanan': {
-      id: '/simpanan'
-      path: '/simpanan'
-      fullPath: '/simpanan'
-      preLoaderRoute: typeof SimpananRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pinjaman': {
-      id: '/pinjaman'
-      path: '/pinjaman'
-      fullPath: '/pinjaman'
-      preLoaderRoute: typeof PinjamanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/laporan': {
-      id: '/laporan'
-      path: '/laporan'
-      fullPath: '/laporan'
-      preLoaderRoute: typeof LaporanRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/angsuran': {
-      id: '/angsuran'
-      path: '/angsuran'
-      fullPath: '/angsuran'
-      preLoaderRoute: typeof AngsuranRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/anggota': {
-      id: '/anggota'
-      path: '/anggota'
-      fullPath: '/anggota'
-      preLoaderRoute: typeof AnggotaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -146,16 +111,51 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/simpanan/': {
+      id: '/simpanan/'
+      path: '/simpanan'
+      fullPath: '/simpanan/'
+      preLoaderRoute: typeof SimpananIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pinjaman/': {
+      id: '/pinjaman/'
+      path: '/pinjaman'
+      fullPath: '/pinjaman/'
+      preLoaderRoute: typeof PinjamanIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/laporan/': {
+      id: '/laporan/'
+      path: '/laporan'
+      fullPath: '/laporan/'
+      preLoaderRoute: typeof LaporanIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/angsuran/': {
+      id: '/angsuran/'
+      path: '/angsuran'
+      fullPath: '/angsuran/'
+      preLoaderRoute: typeof AngsuranIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anggota/': {
+      id: '/anggota/'
+      path: '/anggota'
+      fullPath: '/anggota/'
+      preLoaderRoute: typeof AnggotaIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AnggotaRoute: AnggotaRoute,
-  AngsuranRoute: AngsuranRoute,
-  LaporanRoute: LaporanRoute,
-  PinjamanRoute: PinjamanRoute,
-  SimpananRoute: SimpananRoute,
+  AnggotaIndexRoute: AnggotaIndexRoute,
+  AngsuranIndexRoute: AngsuranIndexRoute,
+  LaporanIndexRoute: LaporanIndexRoute,
+  PinjamanIndexRoute: PinjamanIndexRoute,
+  SimpananIndexRoute: SimpananIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

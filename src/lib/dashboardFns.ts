@@ -3,19 +3,11 @@ import { db } from '../db/client.server'
 import { members, simpanan, pinjaman, angsuran } from '../db/schema'
 import { eq, and, sql } from 'drizzle-orm'
 import { startOfDay, subMonths, format } from 'date-fns'
-import { verifyPayload } from './session.server'
-
-function verifyToken(data: { token: string }) {
-  const payload = verifyPayload(data.token)
-  if (!payload) throw new Error('Sesi tidak valid')
-  return payload
-}
+import { withAuth } from './authUtils'
 
 export const getDashboardStats = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string }) => data)
-  .handler(async ({ data }) => {
-    verifyToken(data)
-
+  .handler(withAuth(async (_data) => {
     const today = startOfDay(new Date()).getTime()
 
     const [memberCount] = await db
@@ -49,13 +41,11 @@ export const getDashboardStats = createServerFn({ method: 'POST' })
       angsuranHariIni: totalAngsuranHariIni?.total || 0,
       tunggakan: tunggakanCount?.count || 0,
     }
-  })
+  }))
 
 export const getDashboardChartData = createServerFn({ method: 'POST' })
   .inputValidator((data: { token: string }) => data)
-  .handler(async ({ data }) => {
-    verifyToken(data)
-
+  .handler(withAuth(async (_data) => {
     const months: { label: string; simpanan: number; pinjaman: number }[] = []
 
     for (let i = 5; i >= 0; i--) {
@@ -87,4 +77,4 @@ export const getDashboardChartData = createServerFn({ method: 'POST' })
     }
 
     return months
-  })
+  }))

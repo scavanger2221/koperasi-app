@@ -1,6 +1,8 @@
+import { cn } from '../../lib/utils'
+
 export function PageActions({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={['flex items-center justify-end gap-1', className].join(' ')}>
+    <div className={cn('flex items-center justify-end gap-1', className)}>
       {children}
     </div>
   )

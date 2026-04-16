@@ -1,3 +1,5 @@
+import { cn } from '../../lib/utils'
+
 export function Avatar({
   name,
   size = 'md',
@@ -18,11 +20,11 @@ export function Avatar({
 
   return (
     <div
-      className={[
-        'avatar bg-[var(--color-primary-light)] text-[var(--color-primary-dark)]',
+      className={cn(
+        'inline-flex items-center justify-center rounded-full font-bold bg-[var(--color-primary-light)] text-[var(--color-primary-dark)]',
         sizeClasses[size],
-        className,
-      ].join(' ')}
+        className
+      )}
       aria-hidden
     >
       {initial}

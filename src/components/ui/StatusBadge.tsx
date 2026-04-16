@@ -1,4 +1,5 @@
 import { CheckCircle, XCircle, Clock, CircleDollarSign, AlertCircle, Circle, MinusCircle, TrendingUp, TrendingDown } from 'lucide-react'
+import { cn } from '../../lib/utils'
 
 export type BadgeVariant =
   | 'active'
@@ -34,23 +35,23 @@ const labels: Record<BadgeVariant, string> = {
 }
 
 const styles: Record<BadgeVariant, string> = {
-  active: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  inactive: 'bg-slate-50 text-slate-600 border border-slate-200',
-  pending: 'bg-amber-50 text-amber-700 border border-amber-200',
-  approved: 'bg-blue-50 text-blue-700 border border-blue-200',
-  disbursed: 'bg-indigo-50 text-indigo-700 border border-indigo-200',
+  active: 'bg-[var(--color-success-light)] text-[var(--color-success)] border border-[var(--color-success)]/20',
+  inactive: 'bg-[var(--color-bg-soft)] text-[var(--color-text-soft)] border border-[var(--color-border)]',
+  pending: 'bg-[var(--color-warning-light)] text-[var(--color-warning)] border border-[var(--color-warning)]/20',
+  approved: 'bg-[var(--color-success-light)] text-[var(--color-success)] border border-[var(--color-success)]/20',
+  disbursed: 'bg-[var(--color-success-light)] text-[var(--color-success)] border border-[var(--color-success)]/20',
   paid: 'bg-[var(--color-primary-light)] text-[var(--color-primary)] border border-[var(--color-primary)]/20',
-  deposit: 'bg-emerald-50 text-emerald-700 border border-emerald-200',
-  withdrawal: 'bg-rose-50 text-rose-700 border border-rose-200',
+  deposit: 'bg-[var(--color-success-light)] text-[var(--color-success)] border border-[var(--color-success)]/20',
+  withdrawal: 'bg-[var(--color-danger-light)] text-[var(--color-danger)] border border-[var(--color-danger)]/20',
   unpaid: 'bg-[var(--color-danger-light)] text-[var(--color-danger)] border border-[var(--color-danger)]/20',
-  partial: 'bg-orange-50 text-orange-700 border border-orange-200',
+  partial: 'bg-[var(--color-warning-light)] text-[var(--color-warning)] border border-[var(--color-warning)]/20',
   danger: 'bg-[var(--color-danger-light)] text-[var(--color-danger)] border border-[var(--color-danger)]/20',
   warning: 'bg-[var(--color-warning-light)] text-[var(--color-warning)] border border-[var(--color-warning)]/20',
   success: 'bg-[var(--color-success-light)] text-[var(--color-success)] border border-[var(--color-success)]/20',
   default: 'bg-[var(--color-bg-soft)] text-[var(--color-text-soft)] border border-[var(--color-border)]',
 }
 
-const icons: Record<BadgeVariant, React.ComponentType<{ className?: string }>> = {
+const icons: Record<BadgeVariant, React.ComponentType<{ className?: string; strokeWidth?: number }>> = {
   active: CheckCircle,
   inactive: MinusCircle,
   pending: Clock,
@@ -79,13 +80,13 @@ export function StatusBadge({
   const Icon = icons[variant] || Circle
   return (
     <span
-      className={[
-        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider whitespace-nowrap',
+      className={cn(
+        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-2xs font-extrabold uppercase tracking-wider whitespace-nowrap',
         styles[variant] || styles.default,
-        className,
-      ].join(' ')}
+        className
+      )}
     >
-      <Icon className="w-3.5 h-3.5 stroke-[2.5px]" />
+      <Icon className="w-3.5 h-3.5" strokeWidth={2.5} />
       {children ?? labels[variant] ?? labels.default}
     </span>
   )

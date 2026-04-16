@@ -1,16 +1,23 @@
 import { Search } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { cn } from '../../lib/utils'
 
 export function SearchInput({
   value,
   onChange,
   placeholder = 'Cari data...',
   className = '',
+  inputClassName = '',
+  debounce = 400,
+  onKeyDown,
 }: {
   value: string
   onChange: (value: string) => void
   placeholder?: string
   className?: string
+  inputClassName?: string
+  debounce?: number | false
+  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>
 }) {
   const [localValue, setLocalValue] = useState(value)
 
@@ -19,24 +26,31 @@ export function SearchInput({
   }, [value])
 
   useEffect(() => {
+    if (debounce === false) return
     const timer = setTimeout(() => {
       if (localValue !== value) {
         onChange(localValue)
       }
-    }, 400) // 400ms debounce
+    }, debounce)
 
     return () => clearTimeout(timer)
-  }, [localValue, onChange, value])
+  }, [localValue, onChange, value, debounce])
 
   return (
-    <div className={['relative w-full sm:max-w-xs', className].join(' ')}>
-      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-primary)] stroke-[2.5px] pointer-events-none" />
+    <div className={cn('relative w-full', className)}>
+      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-primary)] pointer-events-none" strokeWidth={2.5} />
       <input
         type="text"
         value={localValue}
-        onChange={(e) => setLocalValue(e.target.value)}
+        onChange={(e) => {
+          setLocalValue(e.target.value)
+          if (debounce === false) {
+            onChange(e.target.value)
+          }
+        }}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
-        className="!pl-10 text-sm font-semibold tracking-tight h-11 border-[var(--color-border)] shadow-sm focus:shadow-md"
+        className={cn('!pl-10 text-sm font-semibold tracking-tight h-11 border-[var(--color-border)] w-full', inputClassName)}
       />
     </div>
   )

@@ -1,3 +1,6 @@
+import { Modal } from './Modal'
+import { ModalFooter } from './ModalFooter'
+
 export function ConfirmDialog({
   open,
   onClose,
@@ -17,26 +20,23 @@ export function ConfirmDialog({
   cancelText?: string
   variant?: 'danger' | 'primary'
 }) {
-  if (!open) return null
-
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="relative bg-white w-full max-w-sm rounded-xl shadow-lg p-4">
-        <h3 className="text-sm font-semibold mb-1">{title}</h3>
-        <p className="text-[13px] text-[var(--color-text-soft)] mb-4">{message}</p>
-        <div className="flex flex-col-reverse sm:flex-row gap-2">
-          <button onClick={onClose} className="btn btn-secondary flex-1">
-            {cancelText}
-          </button>
-          <button
-            onClick={onConfirm}
-            className={['btn flex-1', variant === 'danger' ? 'btn-danger' : 'btn-primary'].join(' ')}
-          >
-            {confirmText}
-          </button>
-        </div>
-      </div>
-    </div>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={title}
+      size="sm"
+      footer={
+        <ModalFooter
+          primaryLabel={confirmText}
+          secondaryLabel={cancelText}
+          onPrimary={onConfirm}
+          onSecondary={onClose}
+          primaryVariant={variant}
+        />
+      }
+    >
+      <p className="text-sm text-[var(--color-text-soft)]">{message}</p>
+    </Modal>
   )
 }

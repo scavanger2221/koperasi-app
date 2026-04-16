@@ -1,4 +1,6 @@
 import { X } from 'lucide-react'
+import { cn } from '../../lib/utils'
+import { IconButton } from './IconButton'
 
 export function Modal({
   open,
@@ -24,33 +26,28 @@ export function Modal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-6 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center p-0 md:p-6 animate-in fade-in duration-200">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" 
+        className="absolute inset-0 bg-[var(--color-text)]/40 backdrop-blur-[2px]" 
         onClick={onClose} 
       />
       
       {/* Content */}
-      <div 
-        className={[
-          'relative bg-white w-full h-[90vh] md:h-auto max-h-[90vh] shadow-2xl flex flex-col',
-          'rounded-t-2xl md:rounded-xl border-x border-t md:border border-[var(--color-border)]',
+      <div
+        className={cn(
+          'relative bg-white w-full h-[90vh] md:h-auto max-h-[90vh] flex flex-col',
+          'rounded-t-xl md:rounded-xl border-x border-t md:border border-[var(--color-border)]',
           'animate-in slide-in-from-bottom-10 md:slide-in-from-bottom-4 duration-300',
           sizeClasses[size]
-        ].join(' ')}
+        )}
       >
         <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--color-border)]">
-          <h2 className="text-[16px] font-extrabold tracking-tight text-[var(--color-text)] uppercase">{title}</h2>
-          <button 
-            onClick={onClose} 
-            className="p-1.5 rounded-lg hover:bg-[var(--color-bg-soft)] text-[var(--color-text-soft)] transition-colors border border-transparent hover:border-[var(--color-border)]"
-          >
-            <X className="w-5 h-5 stroke-[2.5px]" />
-          </button>
+          <h2 className="text-lg font-extrabold tracking-tight text-[var(--color-text)] uppercase">{title}</h2>
+          <IconButton icon={X} label="Tutup" onClick={onClose} variant="ghost" />
         </div>
         
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto min-h-0 p-6">
           {children}
         </div>
         
